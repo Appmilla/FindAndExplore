@@ -15,5 +15,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ReactiveUI" Version="11.4.1" />
+    <PackageReference Include="Autofac.Extras.CommonServiceLocator" Version="6.0.0" />
   </ItemGroup>
 </Project>

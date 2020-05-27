@@ -95,6 +95,15 @@
       <HintPath>..\packages\ReactiveUI.11.4.1\lib\xamarinios10\ReactiveUI.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="Autofac">
+      <HintPath>..\packages\Autofac.5.0.0\lib\netstandard2.1\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonServiceLocator">
+      <HintPath>..\packages\CommonServiceLocator.2.0.5\lib\netstandard2.1\CommonServiceLocator.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac.Extras.CommonServiceLocator">
+      <HintPath>..\packages\Autofac.Extras.CommonServiceLocator.6.0.0\lib\netstandard2.0\Autofac.Extras.CommonServiceLocator.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
@@ -116,11 +125,15 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
-    <Compile Include="ViewController.cs" />
-    <Compile Include="ViewController.designer.cs">
-      <DependentUpon>ViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Navigation\NavigationViewController.cs" />
+    <Compile Include="MapViewController.cs" />
+    <Compile Include="MapViewController.designer.cs">
+      <DependentUpon>MapViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MoreViewController.cs" />
+    <Compile Include="MoreViewController.designer.cs">
+      <DependentUpon>MoreViewController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FindAndExplore\FindAndExplore.csproj">
