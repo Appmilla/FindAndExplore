@@ -5,24 +5,25 @@
     android:layout_height="match_parent">
 
     <FrameLayout
-        android:id="@+id/content_frame"
+        android:id="@+id/frameContent"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"/>
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"/>
+
         <android.support.design.widget.BottomNavigationView
-          android:id="@+id/bottom_navigation"
-          android:layout_width="0dp"
-          android:layout_height="56dp"
-          app:layout_constraintLeft_toLeftOf="parent"
-          app:layout_constraintRight_toRightOf="parent"
-          app:layout_constraintBottom_toBottomOf="parent"
-          android:layout_gravity="start"
-          android:layout_alignParentBottom="true"
-          android:background="@android:color/white"
-          app:elevation="16dp"
-          app:menu="@menu/bottom_navigation" />
-          <!-- Note: background color is required to get elevation -->
+              android:id="@+id/bottomNavigation"
+              android:layout_width="0dp"
+              android:layout_height="56dp"
+              app:layout_constraintLeft_toLeftOf="parent"
+              app:layout_constraintRight_toRightOf="parent"
+              app:layout_constraintBottom_toBottomOf="parent"
+              android:layout_gravity="start"
+              android:layout_alignParentBottom="true"
+              android:background="@android:color/white"
+              app:elevation="16dp"
+              app:menu="@menu/bottom_navigation" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

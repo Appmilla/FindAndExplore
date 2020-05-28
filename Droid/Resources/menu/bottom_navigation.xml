@@ -5,11 +5,13 @@
       android:id="@+id/menu_map"
       android:enabled="true"
       android:title="Map"
+      android:icon="@drawable/map_icon"
       app:showAsAction="ifRoom" />
 
   <item
       android:id="@+id/menu_more"
       android:enabled="true"
       android:title="More"
+      android:icon="@drawable/more_icon"
       app:showAsAction="ifRoom" />
 </menu>
