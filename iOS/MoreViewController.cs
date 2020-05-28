@@ -16,6 +16,7 @@ namespace FindAndExplore.iOS
             base.ViewDidLoad();
 
             Title = "More";
+            TabBarItem.Image = UIImage.FromBundle("tab_more_icon");
         }
     }
 }

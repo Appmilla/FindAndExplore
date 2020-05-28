@@ -108,25 +108,21 @@
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
     <ImageAsset Include="Assets.xcassets\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\map_icon.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\more_icon.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\map_icon.imageset\map_icon-1.pdf" />
-    <ImageAsset Include="Assets.xcassets\more_icon.imageset\more_icon.pdf" />
-    <ImageAsset Include="Assets.xcassets\map_icon.imageset\map_icon-2.pdf" />
-    <ImageAsset Include="Assets.xcassets\more_icon.imageset\more_icon-1.pdf" />
-    <ImageAsset Include="Assets.xcassets\map_icon.imageset\map_icon-3.pdf" />
-    <ImageAsset Include="Assets.xcassets\map_icon.imageset\map_icon.pdf" />
-    <ImageAsset Include="Assets.xcassets\map_icon.imageset\more_icon.pdf" />
-    <ImageAsset Include="Assets.xcassets\map_icon.imageset\map_icon.png" />
-    <ImageAsset Include="Assets.xcassets\map_icon.imageset\map_icon-1.png" />
-    <ImageAsset Include="Assets.xcassets\more_icon.imageset\more_icon.png" />
-    <ImageAsset Include="Assets.xcassets\more_icon.imageset\more_icon-1.png" />
+    <ImageAsset Include="Assets.xcassets\tab_map_icon.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\tab_more_icon.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\tab_map_icon.imageset\map_icon.png" />
+    <ImageAsset Include="Assets.xcassets\tab_map_icon.imageset\map_icon-1.png" />
+    <ImageAsset Include="Assets.xcassets\tab_more_icon.imageset\more_icon.png" />
+    <ImageAsset Include="Assets.xcassets\tab_more_icon.imageset\more_icon-1.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
     <Folder Include="Navigation\" />
     <Folder Include="Assets.xcassets\map_icon.imageset\" />
     <Folder Include="Assets.xcassets\more_icon.imageset\" />
+    <Folder Include="Assets.xcassets\map_tab_icon.imageset\" />
+    <Folder Include="Assets.xcassets\tab_map_icon.imageset\" />
+    <Folder Include="Assets.xcassets\tab_more_icon.imageset\" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />

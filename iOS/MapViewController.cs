@@ -16,6 +16,7 @@ namespace FindAndExplore.iOS
             base.ViewDidLoad();
 
             Title = "Map";
+            TabBarItem.Image = UIImage.FromBundle("tab_map_icon");
         }
     }
 }
