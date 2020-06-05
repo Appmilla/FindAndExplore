@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -11,6 +10,7 @@ using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using Com.Mapbox.Mapboxsdk.Maps;
 using ReactiveUI.AndroidSupport;
 
 namespace FindAndExplore.Droid
@@ -24,7 +24,8 @@ namespace FindAndExplore.Droid
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            return inflater.Inflate(Resource.Layout.MoreFragmentView, container, false);
+            var view = inflater.Inflate(Resource.Layout.MoreFragmentView, container, false);
+            return view;
         }
     }
 }
