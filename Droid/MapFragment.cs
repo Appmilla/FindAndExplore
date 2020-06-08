@@ -11,19 +11,16 @@ using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using Com.Mapbox.Mapboxsdk.Camera;
+using Com.Mapbox.Mapboxsdk.Geometry;
 using Com.Mapbox.Mapboxsdk.Maps;
 using ReactiveUI.AndroidSupport;
 
 namespace FindAndExplore.Droid
 {
-    public class MapFragment : ReactiveFragment
+    public class MapFragment : ReactiveFragment, IOnMapReadyCallback
     {
         MapView mapView;
-
-        public override void OnCreate(Bundle savedInstanceState)
-        {
-            base.OnCreate(savedInstanceState);
-        }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -31,9 +28,14 @@ namespace FindAndExplore.Droid
 
             mapView = view.FindViewById<MapView>(Resource.Id.mapView);
             mapView.OnCreate(savedInstanceState);
-            mapView.GetMapAsync(new OnMapReadyCallback());
+            mapView.GetMapAsync(this);
 
             return view;
+        }
+
+        public void OnMapReady(MapboxMap mapboxMap)
+        {
+            mapboxMap.SetStyle(Style.SatelliteStreets);
         }
 
         public override void OnStart()
@@ -70,14 +72,6 @@ namespace FindAndExplore.Droid
         {
             base.OnLowMemory();
             mapView.OnLowMemory();
-        }
-    }
-
-    public class OnMapReadyCallback : Java.Lang.Object, IOnMapReadyCallback
-    {
-        public void OnMapReady(MapboxMap mapboxMap)
-        {
-            mapboxMap.SetStyle(Style.SatelliteStreets);
         }
     }
 }

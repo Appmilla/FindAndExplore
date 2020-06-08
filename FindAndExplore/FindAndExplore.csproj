@@ -12,9 +12,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Reactive\" />
+    <Folder Include="ViewModels\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ReactiveUI" Version="11.4.1" />
     <PackageReference Include="Autofac.Extras.CommonServiceLocator" Version="6.0.0" />
+    <PackageReference Include="ReactiveUI.Fody" Version="11.4.1" />
   </ItemGroup>
 </Project>
