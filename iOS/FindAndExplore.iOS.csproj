@@ -76,6 +76,7 @@
     <MtouchArch>ARM64</MtouchArch>
     <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
     <LangVersion>8.0</LangVersion>
+    <MtouchExtraArgs>--registrar:static</MtouchExtraArgs>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -154,6 +155,9 @@
     </PackageReference>
     <PackageReference Include="ReactiveUI">
       <Version>11.4.1</Version>
+    </PackageReference>
+    <PackageReference Include="Mapbox.iOS.SDK">
+      <Version>4.10.0</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

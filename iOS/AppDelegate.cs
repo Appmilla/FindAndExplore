@@ -1,4 +1,5 @@
 ﻿using Foundation;
+using MapboxBindings;
 using UIKit;
 
 namespace FindAndExplore.iOS
@@ -20,6 +21,8 @@ namespace FindAndExplore.iOS
         {
             // Override point for customization after application launch.
             // If not required for your application you can safely delete this method
+
+            MGLAccountManager.AccessToken = "pk.eyJ1Ijoicndvb2xsY290dCIsImEiOiJja2FnaWlsMHQwNnYyMnpvNWhhbTd1OTRiIn0.5pL3D0LvtE8A6Yuz40RhIA";
 
             return true;
         }
