@@ -1,5 +1,5 @@
 ﻿using Foundation;
-using MapboxBindings;
+using Mapbox;
 using UIKit;
 
 namespace FindAndExplore.iOS

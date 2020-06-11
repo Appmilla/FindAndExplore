@@ -1,8 +1,7 @@
-using CoreLocation;
-using Foundation;
-using MapboxBindings;
-using ReactiveUI;
 using System;
+using CoreLocation;
+using Mapbox;
+using ReactiveUI;
 using UIKit;
 
 namespace FindAndExplore.iOS
@@ -32,7 +31,7 @@ namespace FindAndExplore.iOS
 
     public class AppMGLMapViewDelegate : MGLMapViewDelegate
     {
-        public override void DidFinishLoadingMap(MGLMapView mapView)
+        public override void MapViewDidFinishLoadingMap(MGLMapView mapView)
         {
             mapView.SetCenterCoordinate(new CLLocationCoordinate2D(51.137506, -3.008960), 10, true);
         }
