@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 
 using Android.OS;
 using Android.Views;
+using Com.Mapbox.Mapboxsdk.Camera;
 using Com.Mapbox.Mapboxsdk.Geometry;
 using Com.Mapbox.Mapboxsdk.Maps;
 using Com.Mapbox.Mapboxsdk.Plugins.Annotation;
@@ -58,7 +59,6 @@ namespace FindAndExplore.Droid
             _mapboxMap.AddOnCameraMoveListener(this);
             _mapboxMap.AddOnFlingListener(this);
 
-            OnCameraMove();
             ViewModel.OnMapLoaded();
         }
 
@@ -73,6 +73,12 @@ namespace FindAndExplore.Droid
             _symbolManager.TextIgnorePlacement = Java.Lang.Boolean.True;
 
             _symbolManager.AddClickListener(this);
+
+            var position = new CameraPosition.Builder()
+                .Target(new LatLng(51.137506, -3.008960))
+                .Build();
+
+            _mapboxMap.AnimateCamera(CameraUpdateFactory.NewCameraPosition(position), 2000);
         }
 
         public void OnCameraMove()
