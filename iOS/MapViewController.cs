@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CommonServiceLocator;
+using CoreAnimation;
 using CoreLocation;
 using DynamicData;
 using DynamicData.Binding;
@@ -90,7 +91,10 @@ namespace FindAndExplore.iOS
 
         public override void MapViewDidFinishLoadingMap(MGLMapView mapView)
         {
-            mapView.SetCenterCoordinate(new CLLocationCoordinate2D(51.137506, -3.008960), 10, true);
+            var camera = new MGLMapCamera();
+            camera.CenterCoordinate = new CLLocationCoordinate2D(51.137506, -3.008960);
+            camera.Altitude = 30000;
+            mapView.SetCamera(camera, 2.0, CAMediaTimingFunction.FromName(CAMediaTimingFunction.EaseIn));
 
             ViewModel?.OnMapLoaded();
         }
