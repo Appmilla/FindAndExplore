@@ -94,10 +94,10 @@ namespace FindAndExplore.Droid
                     foreach (var addedPoint in change.Range)
                     {                        
                         var pointMarker = new SymbolOptions()
-                            .WithIconImage("marker-15") //see https://github.com/mapbox/mapbox-gl-styles/blob/master/README.md
-                            .WithIconSize(new Float(4.0f))                            
+                            .WithIconImage("tw-provincial-expy-2") //see https://github.com/mapbox/mapbox-gl-styles/blob/master/README.md
+                            .WithIconSize(new Float(1.0f))                            
                             .WithLatLng(new LatLng(addedPoint.Location.Coordinates.Latitude, addedPoint.Location.Coordinates.Longitude));
-                                                    
+
                         _symbolManager.Create(pointMarker);
                         
                     }
@@ -105,8 +105,8 @@ namespace FindAndExplore.Droid
                 else if (change.Reason == ListChangeReason.Add)
                 {
                     var pointMarker = new SymbolOptions()
-                             .WithIconImage("marker-15") //see https://github.com/mapbox/mapbox-gl-styles/blob/master/README.md
-                             .WithIconSize(new Float(4.0f))
+                             .WithIconImage("tw-provincial-expy-2") //see https://github.com/mapbox/mapbox-gl-styles/blob/master/README.md
+                             .WithIconSize(new Float(1.0f))
                              .WithLatLng(new LatLng(change.Item.Current.Location.Coordinates.Latitude, change.Item.Current.Location.Coordinates.Longitude));
 
                     _symbolManager.Create(pointMarker);
