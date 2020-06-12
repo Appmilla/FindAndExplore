@@ -58,6 +58,7 @@ namespace FindAndExplore.Droid
             _mapboxMap.AddOnCameraMoveListener(this);
             _mapboxMap.AddOnFlingListener(this);
 
+            OnCameraMove();
             ViewModel.OnMapLoaded();
         }
 
@@ -98,6 +99,19 @@ namespace FindAndExplore.Droid
                         _symbolManager.Create(pointMarker);
                         
                     }
+                }
+                else if (change.Reason == ListChangeReason.Add)
+                {
+                    var pointMarker = new SymbolOptions()
+                             .WithIconImage("marker-15") //see https://github.com/mapbox/mapbox-gl-styles/blob/master/README.md
+                             .WithIconSize(new Float(4.0f))
+                             .WithLatLng(new LatLng(change.Item.Current.Location.Coordinates.Latitude, change.Item.Current.Location.Coordinates.Longitude));
+
+                    _symbolManager.Create(pointMarker);
+                }
+                else if (change.Reason == ListChangeReason.Remove)
+                {
+                    _symbolManager.DeleteAll();
                 }
             }
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using CommonServiceLocator;
 using CoreLocation;
 using DynamicData;
@@ -70,8 +71,14 @@ namespace FindAndExplore.iOS
                     };
                     mapView.AddAnnotation(pointAnnotation);
                 }
+                else if (change.Reason == ListChangeReason.Remove)
+                {
+                    if(mapView.Annotations != null && mapView.Annotations.Any())
+                    {
+                        mapView.RemoveAnnotations(mapView.Annotations);
+                    }
+                }
             }
-            
         }
     }
 
