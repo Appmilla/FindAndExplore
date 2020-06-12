@@ -68,7 +68,9 @@ namespace FindAndExplore.Droid
 
             // set non data driven properties
             _symbolManager.IconAllowOverlap = Java.Lang.Boolean.True;
+            _symbolManager.IconIgnorePlacement = Java.Lang.Boolean.True;
             _symbolManager.TextAllowOverlap = Java.Lang.Boolean.True;
+            _symbolManager.TextIgnorePlacement = Java.Lang.Boolean.True;
 
             _symbolManager.AddClickListener(this);
         }
@@ -111,7 +113,11 @@ namespace FindAndExplore.Droid
                 }
                 else if (change.Reason == ListChangeReason.Remove)
                 {
-                    _symbolManager.DeleteAll();
+                    // Need to work out a way to remove each item one by one, probably use TextField
+                    if (_symbolManager.Annotations != null && _symbolManager.Annotations.Size() > 0)
+                    {
+                        _symbolManager.DeleteAll();
+                    }
                 }
             }
         }

@@ -75,7 +75,9 @@ namespace FindAndExplore.iOS
                 {
                     if(mapView.Annotations != null && mapView.Annotations.Any())
                     {
-                        mapView.RemoveAnnotations(mapView.Annotations);
+                        var annotation = mapView.Annotations.FirstOrDefault(a => a.GetTitle() == change.Item.Current.Name);
+
+                        mapView.RemoveAnnotation(annotation);
                     }
                 }
             }
