@@ -7,6 +7,7 @@ using AndroidX.Core.Content;
 using Android;
 using Android.Content.PM;
 using AndroidX.Core.App;
+using FindAndExplore.Droid.Bootstrap;
 
 namespace FindAndExplore.Droid
 {
@@ -28,6 +29,8 @@ namespace FindAndExplore.Droid
 
             _bottomNavigation = FindViewById<BottomNavigationView>(Resource.Id.bottomNavigation);
             _bottomNavigation.NavigationItemSelected += BottomNavigation_NavigationItemSelected;
+
+            AndroidBootstrapper.Bootstrap();
 
             LoadFragment(Resource.Id.menu_map);
         }
