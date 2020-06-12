@@ -14,6 +14,7 @@ using Android.Widget;
 using Com.Mapbox.Mapboxsdk.Camera;
 using Com.Mapbox.Mapboxsdk.Geometry;
 using Com.Mapbox.Mapboxsdk.Maps;
+using Com.Mapbox.Mapboxsdk.Plugins.Annotation;
 using ReactiveUI.AndroidSupport;
 
 namespace FindAndExplore.Droid
@@ -35,7 +36,7 @@ namespace FindAndExplore.Droid
 
         public void OnMapReady(MapboxMap mapboxMap)
         {
-            mapboxMap.SetStyle(Style.SatelliteStreets);
+            mapboxMap.SetStyle(Style.SATELLITE_STREETS);
         }
 
         public override void OnStart()

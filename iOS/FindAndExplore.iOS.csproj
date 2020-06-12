@@ -154,10 +154,6 @@
       <Project>{8E55E1CD-1801-4B3A-B001-06DFA2E18759}</Project>
       <Name>FindAndExplore</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MapboxBindingiOS\Naxam.Mapbox.iOS\Naxam.Mapbox.iOS.csproj">
-      <Project>{682AEE9E-B4F4-4BED-8D14-23582E4992FE}</Project>
-      <Name>Naxam.Mapbox.iOS</Name>
-    </ProjectReference>
     <ProjectReference Include="..\FindAndExplore.Core\FindAndExplore.Core.csproj">
       <Project>{D9A255B2-5BBE-47AA-962C-AA4E3C1A8D34}</Project>
       <Name>FindAndExplore.Core</Name>
@@ -181,6 +177,9 @@
     </PackageReference>
     <PackageReference Include="Xamarin.Essentials.Interfaces">
       <Version>1.5.3.2</Version>
+    </PackageReference>
+    <PackageReference Include="Naxam.Mapbox.iOS">
+      <Version>5.4.0</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
