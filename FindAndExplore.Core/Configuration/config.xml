@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<config>    
+    <FindAndExploreBaseUrl>https://apim-find-and-explore.azure-api.net/FindAndExploreApi-dev/</FindAndExploreBaseUrl>
+    <FindAndExploreSubscriptionKey>12e7dd82e8e94a67a4cc70663f9cf46d</FindAndExploreSubscriptionKey>
+    <LogLevel>Debug</LogLevel>
+</config>

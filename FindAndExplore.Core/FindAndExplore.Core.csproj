@@ -11,20 +11,24 @@
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Folder Include="Configuration\" />
+    <Folder Include="Http\" />
     <Folder Include="Reactive\" />
-    <Folder Include="ViewModels\" />
+    <Folder Include="Threading\" />
     <Folder Include="Bootstrap\" />
+    <Folder Include="DynamicData\" />
+    <Folder Include="AppEvents\" />
+    <Folder Include="Extensions\" />
+    <Folder Include="Queries\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ReactiveUI" Version="11.4.1" />
+    <PackageReference Include="akavache" Version="6.10.17" />
+    <PackageReference Include="Xamarin.Essentials.Interfaces" Version="1.5.3.2" />
     <PackageReference Include="ReactiveUI.Fody" Version="11.4.1" />
-    <PackageReference Include="Appmilla.RestApiClient" Version="1.0.2" />
-    <PackageReference Include="Autofac.Extras.CommonServiceLocator" Version="5.0.0" />
     <PackageReference Include="FindAndExploreApi.Client" Version="1.0.7" />
-    <PackageReference Include="geohash-dotnet" Version="1.0.4" />
-    <PackageReference Include="Xamarin.Essentials" Version="1.5.3.2" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FindAndExplore.Core\FindAndExplore.Core.csproj" />
+    <PackageReference Include="Appmilla.RestApiClient" Version="1.0.2" />
+    <PackageReference Include="Autofac" Version="4.9.4" />
+    <PackageReference Include="Autofac.Extras.CommonServiceLocator" Version="5.0.0" />
   </ItemGroup>
 </Project>
