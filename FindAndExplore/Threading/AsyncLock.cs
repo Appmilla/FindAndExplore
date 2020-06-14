@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FindAndExplore.Core.Threading
+namespace FindAndExplore.Threading
 {
     /// <summary>
     /// A lock that allows for async based operations and returns a IDisposable which allows for unlocking.

@@ -1,5 +1,6 @@
 ﻿using System;
-namespace FindAndExplore.Core.Http
+
+namespace FindAndExplore.Http
 {
     public class UnauthorizedApiException : Exception
     {

@@ -3,10 +3,9 @@ using Autofac;
 using Autofac.Extras.CommonServiceLocator;
 using CommonServiceLocator;
 using Splat;
-
-using FindAndExplore.Core.Http;
 using FindAndExplore.iOS.Http;
 using FindAndExplore.Bootstrap;
+using FindAndExplore.Http;
 
 namespace FindAndExplore.iOS.Bootstrap
 {

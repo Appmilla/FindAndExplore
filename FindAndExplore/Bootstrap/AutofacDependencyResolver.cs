@@ -6,7 +6,7 @@ using Autofac;
 using Autofac.Core;
 using Splat;
 
-namespace FindAndExplore.Core.Bootstrap
+namespace FindAndExplore.Bootstrap
 {
     public class AutofacDependencyResolver : IDependencyResolver
     {

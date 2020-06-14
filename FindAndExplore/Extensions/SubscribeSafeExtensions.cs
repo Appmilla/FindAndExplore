@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using CommonServiceLocator;
 using ReactiveUI;
 
-namespace FindAndExplore.Core.Extensions
+namespace FindAndExplore.Extensions
 {
     public static class SubscribeSafeExtensions
     {

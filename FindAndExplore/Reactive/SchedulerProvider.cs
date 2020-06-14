@@ -1,7 +1,7 @@
 ﻿using System.Reactive.Concurrency;
 using ReactiveUI;
 
-namespace FindAndExplore.Core.Reactive
+namespace FindAndExplore.Reactive
 {
     public sealed class SchedulerProvider : ISchedulerProvider
     {

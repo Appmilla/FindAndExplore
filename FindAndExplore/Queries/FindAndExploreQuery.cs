@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Akavache;
-using ReactiveUI.Fody.Helpers;
-using ReactiveUI;
-using System.Reactive.Linq;
-using FindAndExplore.Core.Http;
-using FindAndExplore.Core.Reactive;
+using FindAndExplore.Http;
+using FindAndExplore.Reactive;
 using FindAndExploreApi.Client;
+using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 
-namespace FindAndExplore.Core.Queries
+namespace FindAndExplore.Queries
 {
     public interface IFindAndExploreQuery
     {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FindAndExplore.Core.Configuration
+﻿namespace FindAndExplore.Configuration
 {
     public class AppConfiguration : IAppConfiguration    
     {

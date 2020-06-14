@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reactive.Subjects;
 
-namespace FindAndExplore.Core.AppEvents
+namespace FindAndExplore.AppEvents
 {
     public enum LifecycleEvent
     {

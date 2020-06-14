@@ -7,16 +7,15 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using DynamicData;
-using FindAndExplore.Core.DynamicData;
-using FindAndExplore.Core.Queries;
-using FindAndExplore.Core.Reactive;
-using FindAndExplore.Core.Threading;
+using FindAndExplore.DynamicData;
+using FindAndExplore.Queries;
+using FindAndExplore.Reactive;
 using FindAndExploreApi.Client;
 using Geohash;
 using GeoJSON.Net.Geometry;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
-using AsyncLock = FindAndExplore.Core.Threading.AsyncLock;
+using AsyncLock = FindAndExplore.Threading.AsyncLock;
 
 namespace FindAndExplore.ViewModels
 {

@@ -1,4 +1,4 @@
-﻿namespace FindAndExplore.Core.Queries
+﻿namespace FindAndExplore.Queries
 {
     public static class AkavacheConstants
     {

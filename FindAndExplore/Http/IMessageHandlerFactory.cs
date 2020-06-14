@@ -1,6 +1,6 @@
 ﻿using System.Net.Http;
 
-namespace FindAndExplore.Core.Http
+namespace FindAndExplore.Http
 {
     public interface IMessageHandlerFactory
     {

@@ -1,6 +1,6 @@
 ﻿using System.Reactive.Concurrency;
 
-namespace FindAndExplore.Core.Reactive
+namespace FindAndExplore.Reactive
 {
     public interface ISchedulerProvider
     {

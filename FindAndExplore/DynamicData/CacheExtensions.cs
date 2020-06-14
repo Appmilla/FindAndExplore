@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DynamicData;
 
-namespace FindAndExplore.Core.DynamicData
+namespace FindAndExplore.DynamicData
 {
     public static class CacheExtensions
     {

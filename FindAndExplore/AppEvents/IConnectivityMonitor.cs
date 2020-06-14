@@ -1,7 +1,7 @@
 ﻿using System;
 using Xamarin.Essentials;
 
-namespace FindAndExplore.Core.AppEvents
+namespace FindAndExplore.AppEvents
 {
     public interface IConnectivityMonitor
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 
-namespace FindAndExplore.Core.Configuration
+namespace FindAndExplore.Configuration
 {
     /// <summary>
     /// This class supports config collection. It has methods to read the config values kept inside config.xml

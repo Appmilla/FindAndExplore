@@ -1,6 +1,6 @@
 ﻿using Autofac;
 
-namespace FindAndExplore.Core.Bootstrap
+namespace FindAndExplore.Bootstrap
 {
     public class AutofacDependencyRegistrar
     {

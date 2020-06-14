@@ -4,7 +4,7 @@ using ReactiveUI;
 using Xamarin.Essentials;
 using Xamarin.Essentials.Interfaces;
 
-namespace FindAndExplore.Core.AppEvents
+namespace FindAndExplore.AppEvents
 {
     public class ConnectivityMonitor : ReactiveObject, IConnectivityMonitor
     {

@@ -4,7 +4,7 @@ using Appmilla.RestApiClient;
 using Appmilla.RestApiClient.Interfaces;
 using FindAndExploreApi.Client;
 
-namespace FindAndExplore.Core.Http
+namespace FindAndExplore.Http
 {
     public class FindAndExploreApiClient
     {

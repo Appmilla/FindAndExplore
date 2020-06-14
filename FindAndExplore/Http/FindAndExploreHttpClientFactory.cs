@@ -4,9 +4,9 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using FindAndExplore.Core.Configuration;
+using FindAndExplore.Configuration;
 
-namespace FindAndExplore.Core.Http
+namespace FindAndExplore.Http
 {
     public class FindAndExploreHttpClientFactory : IFindAndExploreHttpClientFactory
     {

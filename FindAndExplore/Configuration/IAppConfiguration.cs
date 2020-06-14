@@ -1,5 +1,5 @@
 ﻿
-namespace FindAndExplore.Core.Configuration
+namespace FindAndExplore.Configuration
 {
     public interface IAppConfiguration
     {        
