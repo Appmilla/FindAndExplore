@@ -2,8 +2,8 @@
 using Autofac.Extras.CommonServiceLocator;
 using CommonServiceLocator;
 using FindAndExplore.Bootstrap;
-using FindAndExplore.Core.Http;
 using FindAndExplore.Droid.Http;
+using FindAndExplore.Http;
 
 namespace FindAndExplore.Droid.Bootstrap
 {

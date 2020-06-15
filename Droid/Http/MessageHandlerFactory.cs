@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http;
-using FindAndExplore.Core.Http;
-
+using FindAndExplore.Http;
 using Xamarin.Android.Net;
 
 namespace FindAndExplore.Droid.Http

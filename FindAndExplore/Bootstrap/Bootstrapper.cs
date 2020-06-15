@@ -9,16 +9,15 @@ using Xamarin.Essentials.Implementation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using FindAndExplore.Core.Configuration;
-using FindAndExplore.Core.Reactive;
-using FindAndExplore.Core.Http;
-using FindAndExplore.Core.AppEvents;
-using FindAndExplore.Core.Queries;
 using Appmilla.RestApiClient.Interfaces;
 using Appmilla.RestApiClient;
 using Appmilla.RestApiClient.Logging;
 using Appmilla.RestApiClient.Logging.Interfaces;
-using FindAndExplore.Core.Bootstrap;
+using FindAndExplore.AppEvents;
+using FindAndExplore.Configuration;
+using FindAndExplore.Http;
+using FindAndExplore.Queries;
+using FindAndExplore.Reactive;
 using FindAndExplore.ViewModels;
 
 namespace FindAndExplore.Bootstrap

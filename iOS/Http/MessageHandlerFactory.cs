@@ -1,5 +1,5 @@
 ﻿using System.Net.Http;
-using FindAndExplore.Core.Http;
+using FindAndExplore.Http;
 
 namespace FindAndExplore.iOS.Http
 {

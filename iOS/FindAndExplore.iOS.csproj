@@ -112,6 +112,9 @@
     <ImageAsset Include="Assets.xcassets\tab_more_icon.imageset\more_icon-1.png">
       <Visible>false</Visible>
     </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\red_marker.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\red_marker.imageset\red_marker.png" />
+    <ImageAsset Include="Assets.xcassets\red_marker.imageset\red_marker-1.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets.xcassets\map_icon.imageset\" />
@@ -120,6 +123,7 @@
     <Folder Include="Resources\" />
     <Folder Include="Bootstrap\" />
     <Folder Include="Http\" />
+    <Folder Include="Assets.xcassets\red_marker.imageset\" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
@@ -153,10 +157,6 @@
     <ProjectReference Include="..\FindAndExplore\FindAndExplore.csproj">
       <Project>{8E55E1CD-1801-4B3A-B001-06DFA2E18759}</Project>
       <Name>FindAndExplore</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FindAndExplore.Core\FindAndExplore.Core.csproj">
-      <Project>{D9A255B2-5BBE-47AA-962C-AA4E3C1A8D34}</Project>
-      <Name>FindAndExplore.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
