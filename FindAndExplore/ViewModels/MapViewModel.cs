@@ -8,10 +8,12 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using DynamicData;
 using FindAndExplore.DynamicData;
+using FindAndExplore.Extensions;
 using FindAndExplore.Queries;
 using FindAndExplore.Reactive;
 using FindAndExploreApi.Client;
 using Geohash;
+using GeoJSON.Net.Feature;
 using GeoJSON.Net.Geometry;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -38,7 +40,15 @@ namespace FindAndExplore.ViewModels
 
         private static readonly Func<PointOfInterest, string> KeySelector = point => point.Id;
         readonly SourceCache<PointOfInterest, string> _pointsOfInterestCache = new SourceCache<PointOfInterest, string>(KeySelector);
-
+        
+        /*
+        private static readonly Func<FeatureCollection, string> FeatureCollectionKeySelector = fc => fc.;
+        readonly SourceCache<FeatureCollection, string> _featureCollectionCache = new SourceCache<FeatureCollection, string>(FeatureCollectionKeySelector);
+        */
+        
+        [Reactive]
+        public FeatureCollection Features { get; set; }
+        
         public ReactiveCommand<Unit, ICollection<PointOfInterest>> Load { get; }
 
         public ReactiveCommand<Unit, ICollection<PointOfInterest>> Refresh { get; }
@@ -141,6 +151,7 @@ namespace FindAndExplore.ViewModels
         {
             _schedulerProvider.MainThread.Schedule(_ =>
             {
+                Features = pointsOfInterest.ToFeatureCollection();
                 _pointsOfInterestCache.UpdateCache(pointsOfInterest, KeySelector);
             });
         }
