@@ -112,6 +112,9 @@
     <ImageAsset Include="Assets.xcassets\tab_more_icon.imageset\more_icon-1.png">
       <Visible>false</Visible>
     </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\red_marker.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\red_marker.imageset\red_marker.png" />
+    <ImageAsset Include="Assets.xcassets\red_marker.imageset\red_marker-1.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets.xcassets\map_icon.imageset\" />
@@ -120,6 +123,7 @@
     <Folder Include="Resources\" />
     <Folder Include="Bootstrap\" />
     <Folder Include="Http\" />
+    <Folder Include="Assets.xcassets\red_marker.imageset\" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />

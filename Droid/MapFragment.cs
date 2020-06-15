@@ -53,9 +53,11 @@ namespace FindAndExplore.Droid
             _mapView.GetMapAsync(this);
 
             // no longer used but keep as a reference for now
-            //var connection = ViewModel.PointsOfInterest.ToObservableChangeSet();
-            //connection.Subscribe(OnChanged);
-
+            /*
+            var connection = ViewModel.PointsOfInterest.ToObservableChangeSet();
+            connection.Subscribe(OnChanged);
+            */
+            
             return view;
         }
         
@@ -71,7 +73,7 @@ namespace FindAndExplore.Droid
             ViewModel.OnMapLoaded();
         }
 
-        private void OnNext(GeoJSON.Net.Feature.FeatureCollection featureCollection)
+        private void OnGeoSourceChanged(GeoJSON.Net.Feature.FeatureCollection featureCollection)
         {
             UpdateGeoSource();
         }
@@ -85,7 +87,7 @@ namespace FindAndExplore.Droid
             SetUpImage();
             SetUpMarkerLayer();
             
-            this.WhenAnyValue(x => x.ViewModel.Features).Subscribe(OnNext);
+            this.WhenAnyValue(x => x.ViewModel.Features).Subscribe(OnGeoSourceChanged);
 
             // Leave for now as we may want to add markers using Symbol Manager and this is a useful reference
             /*
