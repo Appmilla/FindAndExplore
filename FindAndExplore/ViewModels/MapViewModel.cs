@@ -135,26 +135,21 @@ namespace FindAndExplore.ViewModels
                 .Subscribe();
         }
 
-        public async Task Setup()
+        public async Task OnMapLoaded()
         {
             PopupPresenter.ProgressAnimationCompleted += ProgressAnimationCompletedAsync;
 
             PopupPresenter.ShowProgress("Let's see if we can find where you are...", null,
                 AnimationJson, AnimationSequence);
 
-            // Here we can go and get your current location
-            await Task.Delay(6000);
+            // Here we can go and get your current location this will come out
+            await Task.Delay(1500);
 
-            // Success
+            // Success animation
             PopupPresenter?.UpdateProgress("Ah ha, I found you!", null, AnimationKeySuccess);
 
-            // Fail
-            PopupPresenter?.UpdateProgress("Ah ha, I found you!", null, AnimationKeySuccess);
-        }
-
-        public void OnMapLoaded()
-        {
-
+            // Fail animation
+            //PopupPresenter?.UpdateProgress("Oh no, I couldn't find you!", null, AnimationKeyFailed);
         }
 
         string GetGeoHash()
@@ -244,10 +239,10 @@ namespace FindAndExplore.ViewModels
 
         private async void ProgressAnimationCompletedAsync(object sender, AnimationSection animationSection)
         {
-            if (animationSection.Key.Equals(AnimationKeySuccess))
+            if (animationSection.Key.Equals(AnimationKeySuccess) || animationSection.Key.Equals(AnimationKeyFailed))
             {
                 // Delay so that the finish animation is shown
-                await Task.Delay(1500);
+                await Task.Delay(1000);
 
                 // Set the found user location
                 UserLocation = new Position(51.137506, -3.008960);

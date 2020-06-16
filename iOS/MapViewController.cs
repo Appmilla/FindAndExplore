@@ -3,6 +3,7 @@ using CommonServiceLocator;
 using CoreAnimation;
 using CoreLocation;
 using FindAndExplore.Extensions;
+using FindAndExplore.iOS.Presentation;
 using FindAndExplore.ViewModels;
 using Foundation;
 using GeoJSON.Net.Geometry;
@@ -19,7 +20,7 @@ namespace FindAndExplore.iOS
         void OnMapLoaded();
     }
     
-    public partial class MapViewController : ReactiveViewController<MapViewModel>, IMapController
+    public partial class MapViewController : BaseView<MapViewModel>, IMapController
     {
         static string GEOJSON_SOURCE_ID = "GEOJSON_SOURCE_ID";
         static string MARKER_IMAGE_ID = "MARKER_IMAGE_ID";
@@ -109,6 +110,7 @@ namespace FindAndExplore.iOS
             _style = style;
             
             this.WhenAnyValue(x => x.ViewModel.Features).Subscribe(OnGeoSourceChanged);
+            this.WhenAnyValue(x => x.ViewModel.UserLocation).Subscribe(OnUserLocationChanged);
         }
 
         public void OnMapLoaded()
@@ -164,6 +166,17 @@ namespace FindAndExplore.iOS
                 _source.Shape = shape;    
             }
         }
+
+        private void OnUserLocationChanged(Position position)
+        {
+            if (position != null)
+            {
+                var camera = new MGLMapCamera();
+                camera.CenterCoordinate = new CLLocationCoordinate2D(position.Latitude, position.Longitude);
+                camera.Altitude = 30000;
+                _mapView.SetCamera(camera, 2.0, CAMediaTimingFunction.FromName(CAMediaTimingFunction.EaseIn));
+            }
+        }
     }
     
     public class AppMGLMapViewDelegate : MGLMapViewDelegate
@@ -179,13 +192,8 @@ namespace FindAndExplore.iOS
 
         public override void MapViewDidFinishLoadingMap(MGLMapView mapView)
         {
-            var camera = new MGLMapCamera();
-            camera.CenterCoordinate = new CLLocationCoordinate2D(51.137506, -3.008960);
-            camera.Altitude = 30000;
-            mapView.SetCamera(camera, 2.0, CAMediaTimingFunction.FromName(CAMediaTimingFunction.EaseIn));
-
             MapController.OnMapLoaded();
-            ViewModel?.OnMapLoaded();
+            ViewModel?.OnMapLoaded().ConfigureAwait(false);
         }
 
         public override void MapViewRegionDidChange(MGLMapView mapView, bool animated)

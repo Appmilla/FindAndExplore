@@ -85,10 +85,9 @@ namespace FindAndExplore.Droid.Presentation
 
             _progressTextView = view.FindViewById<TextView>(Resource.Id.LabelProgressMessage);
             _progressTextView.Text = ProgressText;
-            //_progressTextView.SetUpTextView();
+
             _progressHeaderTextView = view.FindViewById<TextView>(Resource.Id.LabelProgressHeader);
             _progressHeaderTextView.Text = ProgressHeaderText;
-            //_progressHeaderTextView.SetUpTextView(FontStyle.SemiBold);
 
             _animationView = view.FindViewById<AnimationView>(Resource.Id.AnimationViewProgress);
             _animationView.AnimationCompletionEvent += OnAnimationViewAnimationCompletionEvent;

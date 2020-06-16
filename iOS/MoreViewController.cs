@@ -1,3 +1,5 @@
+using FindAndExplore.iOS.Presentation;
+using FindAndExplore.ViewModels;
 using Foundation;
 using ReactiveUI;
 using System;
@@ -5,7 +7,7 @@ using UIKit;
 
 namespace FindAndExplore.iOS
 {
-    public partial class MoreViewController : ReactiveViewController
+    public partial class MoreViewController : BaseView<MoreViewModel>
     {
         public MoreViewController (IntPtr handle) : base (handle)
         {

@@ -98,7 +98,6 @@ namespace FindAndExplore.Droid.Presentation
 
             shoudlUpdate = true;
             shoudlUpdateLoopAnimation = loopAnimation;
-            //CommitAnimation(loopAnimation);
         }
 
         private AnimationSection FindAnimationSection(string animationSectionKey)

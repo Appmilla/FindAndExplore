@@ -52,8 +52,6 @@ namespace FindAndExplore.Droid
         {
             var view = inflater.Inflate(Resource.Layout.map_fragment_view, container, false);
 
-            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
-
             _mapView = view.FindViewById<MapView>(Resource.Id.mapView);
             _mapView.OnCreate(savedInstanceState);
             _mapView.GetMapAsync(this);
@@ -75,8 +73,6 @@ namespace FindAndExplore.Droid
             
             _mapboxMap.AddOnCameraMoveListener(this);
             _mapboxMap.AddOnFlingListener(this);
-
-            ViewModel.OnMapLoaded();
         }
 
         private void OnGeoSourceChanged(GeoJSON.Net.Feature.FeatureCollection featureCollection)
@@ -94,6 +90,7 @@ namespace FindAndExplore.Droid
             SetUpMarkerLayer();
             
             this.WhenAnyValue(x => x.ViewModel.Features).Subscribe(OnGeoSourceChanged);
+            this.WhenAnyValue(x => x.ViewModel.UserLocation).Subscribe(OnUserLocationChanged);
 
             // Leave for now as we may want to add markers using Symbol Manager and this is a useful reference
             /*
@@ -107,7 +104,8 @@ namespace FindAndExplore.Droid
 
             _symbolManager.AddClickListener(this);
             */
-            
+
+            // Have to set starting point on Android so setting way up high
             var position = new CameraPosition.Builder()
                 .Target(new LatLng(51.137506, -3.008960))
                 .Zoom(1)
@@ -115,7 +113,7 @@ namespace FindAndExplore.Droid
 
             _mapboxMap.MoveCamera(CameraUpdateFactory.NewCameraPosition(position));
 
-            ViewModel.Setup().ConfigureAwait(false);
+            ViewModel.OnMapLoaded().ConfigureAwait(false);
         }
         
         private void SetUpImage()
@@ -205,17 +203,16 @@ namespace FindAndExplore.Droid
             }
         }*/
 
-        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void OnUserLocationChanged(Position position)
         {
-            // TODO need to make this a binding
-            if (e.PropertyName == nameof(ViewModel.UserLocation))
+            if (position != null)
             {
-                var position = new CameraPosition.Builder()
+                var cameraPosition = new CameraPosition.Builder()
                         .Target(new LatLng(ViewModel.UserLocation.Latitude, ViewModel.UserLocation.Longitude))
                         .Zoom(11)
                         .Build();
 
-                _mapboxMap.AnimateCamera(CameraUpdateFactory.NewCameraPosition(position), 2000);
+                _mapboxMap.AnimateCamera(CameraUpdateFactory.NewCameraPosition(cameraPosition), 2000);
             }
         }
 
