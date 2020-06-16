@@ -25,7 +25,7 @@ namespace FindAndExplore.Droid
             Com.Mapbox.Mapboxsdk.Mapbox.GetInstance(this, "pk.eyJ1Ijoicndvb2xsY290dCIsImEiOiJja2FnaWlsMHQwNnYyMnpvNWhhbTd1OTRiIn0.5pL3D0LvtE8A6Yuz40RhIA");
             Com.Mapbox.Mapboxsdk.Mapbox.Telemetry.SetDebugLoggingEnabled(true);
 
-            SetContentView(Resource.Layout.Main);
+            SetContentView(Resource.Layout.main_view);
 
             _bottomNavigation = FindViewById<BottomNavigationView>(Resource.Id.bottomNavigation);
             _bottomNavigation.NavigationItemSelected += BottomNavigation_NavigationItemSelected;

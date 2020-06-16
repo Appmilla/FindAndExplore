@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using Android.App;
 using Android.Graphics;
@@ -12,14 +12,18 @@ using Com.Mapbox.Mapboxsdk.Plugins.Annotation;
 using Com.Mapbox.Mapboxsdk.Style.Layers;
 using Com.Mapbox.Mapboxsdk.Style.Sources;
 using CommonServiceLocator;
+using DynamicData;
+using DynamicData.Binding;
+using FindAndExplore.Droid.Presentation;
 using FindAndExplore.Extensions;
 using FindAndExplore.ViewModels;
 using GeoJSON.Net.Geometry;
+using Java.Lang;
 using ReactiveUI;
 
 namespace FindAndExplore.Droid
-{    
-    public class MapFragment : ReactiveUI.AndroidSupport.ReactiveFragment<MapViewModel>,
+{
+    public class MapFragment : BaseFragment<MapViewModel>,
                                 IOnMapReadyCallback,
                                 Style.IOnStyleLoaded,
                                 IOnSymbolClickListener,
@@ -46,7 +50,7 @@ namespace FindAndExplore.Droid
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            var view = inflater.Inflate(Resource.Layout.MapFragmentView, container, false);
+            var view = inflater.Inflate(Resource.Layout.map_fragment_view, container, false);
 
             _mapView = view.FindViewById<MapView>(Resource.Id.mapView);
             _mapView.OnCreate(savedInstanceState);
@@ -69,8 +73,6 @@ namespace FindAndExplore.Droid
             
             _mapboxMap.AddOnCameraMoveListener(this);
             _mapboxMap.AddOnFlingListener(this);
-
-            ViewModel.OnMapLoaded();
         }
 
         private void OnGeoSourceChanged(GeoJSON.Net.Feature.FeatureCollection featureCollection)
@@ -88,6 +90,7 @@ namespace FindAndExplore.Droid
             SetUpMarkerLayer();
             
             this.WhenAnyValue(x => x.ViewModel.Features).Subscribe(OnGeoSourceChanged);
+            this.WhenAnyValue(x => x.ViewModel.UserLocation).Subscribe(OnUserLocationChanged);
 
             // Leave for now as we may want to add markers using Symbol Manager and this is a useful reference
             /*
@@ -101,12 +104,16 @@ namespace FindAndExplore.Droid
 
             _symbolManager.AddClickListener(this);
             */
-            
+
+            // Have to set starting point on Android so setting way up high
             var position = new CameraPosition.Builder()
                 .Target(new LatLng(51.137506, -3.008960))
+                .Zoom(1)
                 .Build();
 
-            _mapboxMap.AnimateCamera(CameraUpdateFactory.NewCameraPosition(position), 2000);
+            _mapboxMap.MoveCamera(CameraUpdateFactory.NewCameraPosition(position));
+
+            ViewModel.OnMapLoaded().ConfigureAwait(false);
         }
         
         private void SetUpImage()
@@ -122,6 +129,7 @@ namespace FindAndExplore.Droid
                 {
                     PropertyFactory.IconImage(MARKER_IMAGE_ID),
                     PropertyFactory.IconAllowOverlap(Java.Lang.Boolean.True),
+                    PropertyFactory.IconIgnorePlacement(Java.Lang.Boolean.True),
                     PropertyFactory.IconOffset(new Java.Lang.Float[] { new Java.Lang.Float(0.0f), new Java.Lang.Float(-9.0f) })
                 });
 
@@ -186,16 +194,28 @@ namespace FindAndExplore.Droid
                 }
                 else if (change.Reason == ListChangeReason.Remove)
                 {
-                    // Need to work out a way to remove each item one by one, probably use TextField
+                    // TODO Need to work out a way to remove each item one by one, probably use TextField
                     if (_symbolManager.Annotations != null && _symbolManager.Annotations.Size() > 0)
                     {
                         _symbolManager.DeleteAll();
                     }
                 }
             }
+        }*/
+
+        private void OnUserLocationChanged(Position position)
+        {
+            if (position != null)
+            {
+                var cameraPosition = new CameraPosition.Builder()
+                        .Target(new LatLng(ViewModel.UserLocation.Latitude, ViewModel.UserLocation.Longitude))
+                        .Zoom(11)
+                        .Build();
+
+                _mapboxMap.AnimateCamera(CameraUpdateFactory.NewCameraPosition(cameraPosition), 2000);
+            }
         }
-        */
-        
+
         public void OnAnnotationClick(Symbol symbol)
         {
 

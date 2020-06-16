@@ -14,6 +14,11 @@
     <Folder Include="Reactive\" />
     <Folder Include="ViewModels\" />
     <Folder Include="Bootstrap\" />
+    <Folder Include="DynamicData\" />
+    <Folder Include="AppEvents\" />
+    <Folder Include="Extensions\" />
+    <Folder Include="Queries\" />
+    <Folder Include="Presentation\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ReactiveUI" Version="11.4.1" />

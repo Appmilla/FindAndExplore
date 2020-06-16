@@ -123,6 +123,7 @@ namespace FindAndExplore.Bootstrap
         static void SetupViewModels(ContainerBuilder builder)
         {
             builder.RegisterType<MapViewModel>().AsSelf().SingleInstance();
+            builder.RegisterType<MoreViewModel>().AsSelf().SingleInstance();
         }
 
         public static void SetupReactiveUI(IContainer container)
