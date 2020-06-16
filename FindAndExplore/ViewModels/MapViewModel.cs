@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -7,10 +7,11 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using DynamicData;
-using FindAndExplore.DynamicData;
-using FindAndExplore.Extensions;
-using FindAndExplore.Queries;
-using FindAndExplore.Reactive;
+using FindAndExplore.Core.DynamicData;
+using FindAndExplore.Core.Presentation;
+using FindAndExplore.Core.Queries;
+using FindAndExplore.Core.Reactive;
+using FindAndExplore.Core.Threading;
 using FindAndExploreApi.Client;
 using Geohash;
 using GeoJSON.Net.Feature;
@@ -21,8 +22,29 @@ using AsyncLock = FindAndExplore.Threading.AsyncLock;
 
 namespace FindAndExplore.ViewModels
 {
-    public class MapViewModel : ReactiveObject
+    public class MapViewModel : BaseViewModel
     {
+        private const string AnimationKeySpinningCircle = "SpinningCircle";
+        private const string AnimationKeySuccess = "Success";
+        private const string AnimationKeyFailed = "Failed";
+
+        private const int SpinningCircleAnimationStartFrame = 0;
+        private const int SpinningCircleAnimationEndFrame = 30;
+        private const int SuccessAnimationStartFrame = 32;
+        private const int SuccessAnimationEndFrame = 56;
+        private const int FailedAnimationStartFrame = 59;
+        private const int FailedAnimationEndFrame = 83;
+
+        public IList<AnimationSection> AnimationSequence { get; } = new List<AnimationSection>
+        {
+            new AnimationSection(AnimationKeySpinningCircle, SpinningCircleAnimationStartFrame,
+                    SpinningCircleAnimationEndFrame),
+            new AnimationSection(AnimationKeySuccess, SuccessAnimationStartFrame, SuccessAnimationEndFrame),
+            new AnimationSection(AnimationKeyFailed, FailedAnimationStartFrame, FailedAnimationEndFrame)
+        };
+
+        public string AnimationJson => "LoadingProcessAnimation.json";
+
         readonly IFindAndExploreQuery _findAndExploreQuery;
         readonly ISchedulerProvider _schedulerProvider;
 
@@ -74,6 +96,9 @@ namespace FindAndExplore.ViewModels
             }
         }
 
+        [Reactive]
+        public Position UserLocation { get; set; }
+
         public MapViewModel(IFindAndExploreQuery findAndExploreQuery, ISchedulerProvider schedulerProvider)
         {
             _findAndExploreQuery = findAndExploreQuery;
@@ -108,6 +133,23 @@ namespace FindAndExplore.ViewModels
                 .ObserveOn(schedulerProvider.MainThread)        //ensure operation is on the UI thread;
                 .DisposeMany()                              //automatic disposal
                 .Subscribe();
+        }
+
+        public async Task Setup()
+        {
+            PopupPresenter.ProgressAnimationCompleted += ProgressAnimationCompletedAsync;
+
+            PopupPresenter.ShowProgress("Let's see if we can find where you are...", null,
+                AnimationJson, AnimationSequence);
+
+            // Here we can go and get your current location
+            await Task.Delay(6000);
+
+            // Success
+            PopupPresenter?.UpdateProgress("Ah ha, I found you!", null, AnimationKeySuccess);
+
+            // Fail
+            PopupPresenter?.UpdateProgress("Ah ha, I found you!", null, AnimationKeySuccess);
         }
 
         public void OnMapLoaded()
@@ -199,6 +241,18 @@ namespace FindAndExplore.ViewModels
 
             return areas?.SingleOrDefault();
         }
+
+        private async void ProgressAnimationCompletedAsync(object sender, AnimationSection animationSection)
+        {
+            if (animationSection.Key.Equals(AnimationKeySuccess))
+            {
+                // Delay so that the finish animation is shown
+                await Task.Delay(1500);
+
+                // Set the found user location
+                UserLocation = new Position(51.137506, -3.008960);
+                PopupPresenter.DismissProgress();
+            }
+        }
     }
 }
-

@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using Android.App;
 using Android.Graphics;
@@ -12,14 +12,16 @@ using Com.Mapbox.Mapboxsdk.Plugins.Annotation;
 using Com.Mapbox.Mapboxsdk.Style.Layers;
 using Com.Mapbox.Mapboxsdk.Style.Sources;
 using CommonServiceLocator;
-using FindAndExplore.Extensions;
+using DynamicData;
+using DynamicData.Binding;
+using FindAndExplore.Droid.Presentation;
 using FindAndExplore.ViewModels;
 using GeoJSON.Net.Geometry;
-using ReactiveUI;
+using Java.Lang;
 
 namespace FindAndExplore.Droid
-{    
-    public class MapFragment : ReactiveUI.AndroidSupport.ReactiveFragment<MapViewModel>,
+{
+    public class MapFragment : BaseFragment<MapViewModel>,
                                 IOnMapReadyCallback,
                                 Style.IOnStyleLoaded,
                                 IOnSymbolClickListener,
@@ -46,7 +48,9 @@ namespace FindAndExplore.Droid
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            var view = inflater.Inflate(Resource.Layout.MapFragmentView, container, false);
+            var view = inflater.Inflate(Resource.Layout.map_fragment_view, container, false);
+
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
 
             _mapView = view.FindViewById<MapView>(Resource.Id.mapView);
             _mapView.OnCreate(savedInstanceState);
@@ -104,9 +108,12 @@ namespace FindAndExplore.Droid
             
             var position = new CameraPosition.Builder()
                 .Target(new LatLng(51.137506, -3.008960))
+                .Zoom(1)
                 .Build();
 
-            _mapboxMap.AnimateCamera(CameraUpdateFactory.NewCameraPosition(position), 2000);
+            _mapboxMap.MoveCamera(CameraUpdateFactory.NewCameraPosition(position));
+
+            ViewModel.Setup().ConfigureAwait(false);
         }
         
         private void SetUpImage()
@@ -186,7 +193,7 @@ namespace FindAndExplore.Droid
                 }
                 else if (change.Reason == ListChangeReason.Remove)
                 {
-                    // Need to work out a way to remove each item one by one, probably use TextField
+                    // TODO Need to work out a way to remove each item one by one, probably use TextField
                     if (_symbolManager.Annotations != null && _symbolManager.Annotations.Size() > 0)
                     {
                         _symbolManager.DeleteAll();
@@ -194,8 +201,21 @@ namespace FindAndExplore.Droid
                 }
             }
         }
-        */
-        
+
+        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            // TODO need to make this a binding
+            if (e.PropertyName == nameof(ViewModel.UserLocation))
+            {
+                var position = new CameraPosition.Builder()
+                        .Target(new LatLng(ViewModel.UserLocation.Latitude, ViewModel.UserLocation.Longitude))
+                        .Zoom(11)
+                        .Build();
+
+                _mapboxMap.AnimateCamera(CameraUpdateFactory.NewCameraPosition(position), 2000);
+            }
+        }
+
         public void OnAnnotationClick(Symbol symbol)
         {
 

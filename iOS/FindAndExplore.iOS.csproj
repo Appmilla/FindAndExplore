@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -124,6 +124,7 @@
     <Folder Include="Bootstrap\" />
     <Folder Include="Http\" />
     <Folder Include="Assets.xcassets\red_marker.imageset\" />
+    <Folder Include="Presentation\" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
@@ -152,6 +153,7 @@
     <Compile Include="Colours.cs" />
     <Compile Include="Bootstrap\iOSBootstrapper.cs" />
     <Compile Include="Http\MessageHandlerFactory.cs" />
+    <Compile Include="Presentation\BaseView.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FindAndExplore\FindAndExplore.csproj">
