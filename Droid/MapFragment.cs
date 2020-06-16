@@ -15,9 +15,11 @@ using CommonServiceLocator;
 using DynamicData;
 using DynamicData.Binding;
 using FindAndExplore.Droid.Presentation;
+using FindAndExplore.Extensions;
 using FindAndExplore.ViewModels;
 using GeoJSON.Net.Geometry;
 using Java.Lang;
+using ReactiveUI;
 
 namespace FindAndExplore.Droid
 {
@@ -129,6 +131,7 @@ namespace FindAndExplore.Droid
                 {
                     PropertyFactory.IconImage(MARKER_IMAGE_ID),
                     PropertyFactory.IconAllowOverlap(Java.Lang.Boolean.True),
+                    PropertyFactory.IconIgnorePlacement(Java.Lang.Boolean.True),
                     PropertyFactory.IconOffset(new Java.Lang.Float[] { new Java.Lang.Float(0.0f), new Java.Lang.Float(-9.0f) })
                 });
 
@@ -200,7 +203,7 @@ namespace FindAndExplore.Droid
                     }
                 }
             }
-        }
+        }*/
 
         private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {

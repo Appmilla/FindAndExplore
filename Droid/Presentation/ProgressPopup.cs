@@ -5,7 +5,7 @@ using Android.OS;
 using Android.Support.V4.App;
 using Android.Views;
 using Android.Widget;
-using FindAndExplore.Core.Presentation;
+using FindAndExplore.Presentation;
 
 namespace FindAndExplore.Droid.Presentation
 {

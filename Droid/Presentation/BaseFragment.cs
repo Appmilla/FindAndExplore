@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Android.Content;
-using FindAndExplore.Core.Presentation;
 using FindAndExplore.ViewModels;
 using ReactiveUI.AndroidSupport;
 

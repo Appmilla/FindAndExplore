@@ -7,7 +7,7 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Com.Airbnb.Lottie;
-using FindAndExplore.Core.Presentation;
+using FindAndExplore.Presentation;
 using Org.Json;
 
 namespace FindAndExplore.Droid.Presentation

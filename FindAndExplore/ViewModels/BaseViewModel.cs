@@ -1,5 +1,5 @@
 ﻿using System;
-using FindAndExplore.Core.Presentation;
+using FindAndExplore.Presentation;
 using ReactiveUI;
 
 namespace FindAndExplore.ViewModels
