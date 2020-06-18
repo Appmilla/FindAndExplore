@@ -100,6 +100,7 @@ namespace FindAndExplore.Bootstrap
             }).As<IApiService>().SingleInstance();
 
             builder.RegisterType<FindAndExploreApiClient>().AsSelf().SingleInstance();
+            builder.RegisterType<FoursquareApiClient>().AsSelf().SingleInstance();
             builder.RegisterType<ConnectivityMonitor>().As<IConnectivityMonitor>().SingleInstance();
 
             builder.Register(c =>
@@ -116,6 +117,20 @@ namespace FindAndExplore.Bootstrap
 
             }).As<IFindAndExploreQuery>().SingleInstance();
 
+            builder.Register(c =>
+            {
+                var blobCache = c.ResolveKeyed<IBlobCache>(AkavacheConstants.LocalMachine);
+                var findAndExploreHttpClientFactory = c.Resolve<IFindAndExploreHttpClientFactory>();
+                var foursquareApiClient = c.Resolve<FoursquareApiClient>();
+                var schedulerProvider = c.Resolve<ISchedulerProvider>();
+
+                return new FoursquareQuery(blobCache,
+                    findAndExploreHttpClientFactory,
+                    foursquareApiClient,
+                    schedulerProvider);
+
+            }).As<IFoursquareQuery>().SingleInstance();
+            
             //builder.RegisterType<AlertsCache>().As<IAlertsCache>().SingleInstance();           
             builder.RegisterType<ApplicationLifecycleObserver>().As<IApplicationLifecycleObserver>().SingleInstance();
         }

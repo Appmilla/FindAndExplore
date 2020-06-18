@@ -30,16 +30,23 @@ namespace FindAndExplore.Droid
                                 MapboxMap.IOnCameraMoveListener,
                                 MapboxMap.IOnFlingListener
     {
-        static string GEOJSON_SOURCE_ID = "GEOJSON_SOURCE_ID";
-        static string MARKER_IMAGE_ID = "MARKER_IMAGE_ID";
-        static string MARKER_LAYER_ID = "MARKER_LAYER_ID";
-            
+        static string GEOJSON_POI_SOURCE_ID = "GEOJSON_POI_SOURCE_ID";
+        static string RED_MARKER_IMAGE_ID = "RED_MARKER_IMAGE_ID";
+        static string POI_MARKER_LAYER_ID = "POI_MARKER_LAYER_ID";
+
+        static string GEOJSON_VENUE_SOURCE_ID = "GEOJSON_VENUE_SOURCE_ID";
+        static string BAR_MARKER_IMAGE_ID = "BAR_MARKER_IMAGE_ID";
+        static string VENUE_MARKER_LAYER_ID = "VENUE_MARKER_LAYER_ID";
+
         MapView _mapView;
         MapboxMap _mapboxMap;
         SymbolManager _symbolManager;
 
-        GeoJsonSource _source;
-        FeatureCollection _featureCollection;
+        GeoJsonSource _pointsOfInterestSource;
+        FeatureCollection _pointsOfInterestFeatureCollection;
+
+        GeoJsonSource _venuesSource;
+        FeatureCollection _venuesFeatureCollection;
 
         Style _style;
         
@@ -75,9 +82,14 @@ namespace FindAndExplore.Droid
             _mapboxMap.AddOnFlingListener(this);
         }
 
-        private void OnGeoSourceChanged(GeoJSON.Net.Feature.FeatureCollection featureCollection)
+        private void OnPointsOfInterestChanged(GeoJSON.Net.Feature.FeatureCollection featureCollection)
         {
-            UpdateGeoSource();
+            UpdatePointsOfInterestGeoSource();
+        }
+
+        private void OnVenuesChanged(GeoJSON.Net.Feature.FeatureCollection featureCollection)
+        {
+            UpdateVenuesGeoSource();
         }
 
         //refer to this example for Symbol Layer
@@ -86,10 +98,14 @@ namespace FindAndExplore.Droid
         {
             _style = style;
             
-            SetUpImage();
-            SetUpMarkerLayer();
-            
-            this.WhenAnyValue(x => x.ViewModel.Features).Subscribe(OnGeoSourceChanged);
+            SetUpPOIImage();
+            SetUpPOIMarkerLayer();
+
+            SetUpVenuesImage();
+            SetUpVenuesMarkerLayer();
+
+            this.WhenAnyValue(x => x.ViewModel.PointOfInterestFeatures).Subscribe(OnPointsOfInterestChanged);
+            this.WhenAnyValue(x => x.ViewModel.VenueFeatures).Subscribe(OnVenuesChanged);
             this.WhenAnyValue(x => x.ViewModel.UserLocation).Subscribe(OnUserLocationChanged);
 
             // Leave for now as we may want to add markers using Symbol Manager and this is a useful reference
@@ -116,18 +132,18 @@ namespace FindAndExplore.Droid
             ViewModel.OnMapLoaded().ConfigureAwait(false);
         }
         
-        private void SetUpImage()
+        private void SetUpPOIImage()
         {
             var bitmap = BitmapFactory.DecodeResource(Application.Context.Resources, Resource.Drawable.red_marker);
-            _style.AddImage(MARKER_IMAGE_ID, bitmap);
+            _style.AddImage(RED_MARKER_IMAGE_ID, bitmap);
         }
         
-        private void SetUpMarkerLayer()
+        private void SetUpPOIMarkerLayer()
         {
-            var symbolLayer = new SymbolLayer(MARKER_LAYER_ID, GEOJSON_SOURCE_ID)
+            var symbolLayer = new SymbolLayer(POI_MARKER_LAYER_ID, GEOJSON_POI_SOURCE_ID)
                 .WithProperties(new[]
                 {
-                    PropertyFactory.IconImage(MARKER_IMAGE_ID),
+                    PropertyFactory.IconImage(RED_MARKER_IMAGE_ID),
                     PropertyFactory.IconAllowOverlap(Java.Lang.Boolean.True),
                     PropertyFactory.IconIgnorePlacement(Java.Lang.Boolean.True),
                     PropertyFactory.IconOffset(new Java.Lang.Float[] { new Java.Lang.Float(0.0f), new Java.Lang.Float(-9.0f) })
@@ -135,7 +151,27 @@ namespace FindAndExplore.Droid
 
             _style.AddLayer(symbolLayer);
         }
-        
+
+        private void SetUpVenuesImage()
+        {
+            var bitmap = BitmapFactory.DecodeResource(Application.Context.Resources, Resource.Drawable.local_bar);
+            _style.AddImage(BAR_MARKER_IMAGE_ID, bitmap);
+        }
+
+        private void SetUpVenuesMarkerLayer()
+        {
+            var symbolLayer = new SymbolLayer(VENUE_MARKER_LAYER_ID, GEOJSON_VENUE_SOURCE_ID)
+                .WithProperties(new[]
+                {
+                    PropertyFactory.IconImage(BAR_MARKER_IMAGE_ID),
+                    PropertyFactory.IconAllowOverlap(Java.Lang.Boolean.True),
+                    PropertyFactory.IconIgnorePlacement(Java.Lang.Boolean.True),
+                    PropertyFactory.IconOffset(new Java.Lang.Float[] { new Java.Lang.Float(0.0f), new Java.Lang.Float(-9.0f) })
+                });
+
+            _style.AddLayer(symbolLayer);
+        }
+
         public void OnCameraMove()
         {
             ViewModel.CenterLocation = new Position(_mapboxMap.CameraPosition.Target.Latitude, _mapboxMap.CameraPosition.Target.Longitude);
@@ -146,24 +182,42 @@ namespace FindAndExplore.Droid
             ViewModel.CenterLocation = new Position(_mapboxMap.CameraPosition.Target.Latitude, _mapboxMap.CameraPosition.Target.Longitude);
         }
 
-        private void SetupGeoSource()
+        private void SetupPointsOfInterestGeoSource()
         {
-            _source = new GeoJsonSource(GEOJSON_SOURCE_ID, _featureCollection);
-            _style.AddSource(_source);
+            _pointsOfInterestSource = new GeoJsonSource(GEOJSON_POI_SOURCE_ID, _pointsOfInterestFeatureCollection);
+            _style.AddSource(_pointsOfInterestSource);
         }
         
-        private void UpdateGeoSource()
+        private void UpdatePointsOfInterestGeoSource()
         {
-            if(_source == null)
+            if(_pointsOfInterestSource == null)
             {
-                SetupGeoSource();
+                SetupPointsOfInterestGeoSource();
             }
             else
             {
-                _source.SetGeoJson(FeatureCollection.FromJson(ViewModel.Features.ToGeoJsonFeatureSource()));    
+                _pointsOfInterestSource.SetGeoJson(FeatureCollection.FromJson(ViewModel.PointOfInterestFeatures.ToGeoJsonFeatureSource()));    
             }
         }
-        
+
+        private void SetupVenuesGeoSource()
+        {
+            _venuesSource = new GeoJsonSource(GEOJSON_VENUE_SOURCE_ID, _venuesFeatureCollection);
+            _style.AddSource(_venuesSource);
+        }
+
+        private void UpdateVenuesGeoSource()
+        {
+            if (_venuesSource == null)
+            {
+                SetupVenuesGeoSource();
+            }
+            else
+            {
+                _venuesSource.SetGeoJson(FeatureCollection.FromJson(ViewModel.VenueFeatures.ToGeoJsonFeatureSource()));
+            }
+        }
+
         // Leave for now as we may want to add markers using Symbol Manager and this is a useful reference
         /*
         private void OnChanged(IChangeSet<PointOfInterest> changeset)

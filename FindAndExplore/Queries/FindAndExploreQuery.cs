@@ -6,6 +6,7 @@ using Akavache;
 using FindAndExplore.Http;
 using FindAndExplore.Reactive;
 using FindAndExploreApi.Client;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -14,6 +15,8 @@ namespace FindAndExplore.Queries
     public interface IFindAndExploreQuery
     {
         bool IsBusy { get; }
+
+        Task<HealthCheckResult> HealthCheck();
 
         Task<ICollection<SupportedArea>> GetCurrentArea(double lat, double lon, string cacheKey);
 
@@ -45,13 +48,22 @@ namespace FindAndExplore.Queries
             _schedulerProvider = schedulerProvider;
         }
 
+        public async Task<HealthCheckResult> HealthCheck()
+        {
+            var httpClient = _httpClientFactory.CreateClient();
+
+            var healthCheck = await _findAndExploreApiClient.HealthCheck();
+
+            return healthCheck;
+        }
+
         public async Task<ICollection<SupportedArea>> GetCurrentArea(double lat, double lon, string cacheKey)
         {
             var httpClient = _httpClientFactory.CreateClient();
 
             var areaResponse = await _findAndExploreApiClient.GetCurrentAreaAsync(lat, lon);
 
-            return areaResponse.Result;
+            return areaResponse;
         }
 
         public IObservable<ICollection<PointOfInterest>> GetPointsOfInterest(int locationId, string cacheKey)
@@ -88,7 +100,7 @@ namespace FindAndExplore.Queries
                 
                 var points = await _findAndExploreApiClient.GetPointsOfInterestAsync(locationId);
 
-                return points.Result;
+                return points;
             }
             finally
             {
