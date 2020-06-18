@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
-    <device id="retina5_9" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina5_9" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ProgressPopup">
             <connections>
                 <outlet property="AnimationViewLoading" destination="pBH-JZ-Xoi" id="OQe-tY-iQR"/>
-                <outlet property="LabelProgressHeaderText" destination="erC-Uc-zFL" id="sU5-gs-hlH"/>
                 <outlet property="LabelProgressText" destination="ecc-h1-lJ6" id="c2Z-ES-Ov3"/>
                 <outlet property="ViewPopupBackground" destination="Wa1-dg-bIe" id="Aow-yP-vY2"/>
                 <outlet property="view" destination="2" id="RRd-Eg-VrN"/>
@@ -28,43 +24,33 @@
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Wa1-dg-bIe" userLabel="View Popup Background">
-                    <rect key="frame" x="20" y="281" width="335" height="250"/>
+                    <rect key="frame" x="20" y="283.66666666666669" width="335" height="245.00000000000006"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pBH-JZ-Xoi" customClass="AnimationView">
-                            <rect key="frame" x="107.66666666666669" y="70" width="120" height="120"/>
-                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <rect key="frame" x="95" y="70" width="145" height="145"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
-                                <constraint firstAttribute="height" constant="120" id="Z8b-v3-SAE"/>
-                                <constraint firstAttribute="width" constant="120" id="nNq-RV-6ye"/>
+                                <constraint firstAttribute="width" secondItem="pBH-JZ-Xoi" secondAttribute="height" multiplier="1:1" id="g5D-xY-hBF"/>
                             </constraints>
                         </view>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ecc-h1-lJ6">
-                            <rect key="frame" x="20" y="230" width="295" height="0.0"/>
+                            <rect key="frame" x="20" y="225" width="295" height="0.0"/>
                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                            <nil key="textColor"/>
-                            <nil key="highlightedColor"/>
-                        </label>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="erC-Uc-zFL">
-                            <rect key="frame" x="20" y="220" width="295" height="0.0"/>
-                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                            <nil key="textColor"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <nil key="highlightedColor"/>
                         </label>
                     </subviews>
-                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
-                        <constraint firstItem="erC-Uc-zFL" firstAttribute="leading" secondItem="Wa1-dg-bIe" secondAttribute="leading" constant="20" id="5Oq-Y0-87v"/>
                         <constraint firstItem="ecc-h1-lJ6" firstAttribute="leading" secondItem="Wa1-dg-bIe" secondAttribute="leading" constant="20" id="BWl-Kd-P80"/>
-                        <constraint firstItem="erC-Uc-zFL" firstAttribute="top" secondItem="pBH-JZ-Xoi" secondAttribute="bottom" constant="30" id="Cqu-IA-CXf"/>
-                        <constraint firstItem="pBH-JZ-Xoi" firstAttribute="centerX" secondItem="Wa1-dg-bIe" secondAttribute="centerX" id="UQS-Bg-Qh9"/>
-                        <constraint firstItem="ecc-h1-lJ6" firstAttribute="top" secondItem="erC-Uc-zFL" secondAttribute="bottom" constant="10" id="Wyv-Rx-cte"/>
+                        <constraint firstAttribute="trailing" secondItem="pBH-JZ-Xoi" secondAttribute="trailing" constant="95" id="SB0-DG-3c4"/>
                         <constraint firstItem="ecc-h1-lJ6" firstAttribute="centerX" secondItem="Wa1-dg-bIe" secondAttribute="centerX" id="ZzX-MX-lwb"/>
                         <constraint firstAttribute="trailing" secondItem="ecc-h1-lJ6" secondAttribute="trailing" constant="20" id="bzE-XY-IyK"/>
-                        <constraint firstAttribute="trailing" secondItem="erC-Uc-zFL" secondAttribute="trailing" constant="20" id="cYl-qv-cUo"/>
+                        <constraint firstItem="pBH-JZ-Xoi" firstAttribute="leading" secondItem="Wa1-dg-bIe" secondAttribute="leading" constant="95" id="h9T-kD-GZd"/>
                         <constraint firstAttribute="width" constant="350" id="kHQ-WU-nVE"/>
+                        <constraint firstItem="ecc-h1-lJ6" firstAttribute="top" secondItem="pBH-JZ-Xoi" secondAttribute="bottom" constant="10" id="kpE-vT-jBl"/>
                         <constraint firstAttribute="bottom" secondItem="ecc-h1-lJ6" secondAttribute="bottom" constant="20" id="snr-Dl-Zx7"/>
                         <constraint firstItem="pBH-JZ-Xoi" firstAttribute="top" secondItem="Wa1-dg-bIe" secondAttribute="top" constant="70" id="ur8-w8-6AP"/>
-                        <constraint firstItem="erC-Uc-zFL" firstAttribute="centerX" secondItem="Wa1-dg-bIe" secondAttribute="centerX" id="vAv-kP-LU2"/>
                     </constraints>
                     <variation key="default">
                         <mask key="constraints">

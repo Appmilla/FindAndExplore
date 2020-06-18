@@ -24,26 +24,22 @@ namespace FindAndExplore.ViewModels
 {
     public class MapViewModel : BaseViewModel
     {
-        private const string AnimationKeySpinningCircle = "SpinningCircle";
+        private const string AnimationKeySpinningCircle = "PulsingCircle";
         private const string AnimationKeySuccess = "Success";
-        private const string AnimationKeyFailed = "Failed";
 
         private const int SpinningCircleAnimationStartFrame = 0;
-        private const int SpinningCircleAnimationEndFrame = 30;
-        private const int SuccessAnimationStartFrame = 32;
-        private const int SuccessAnimationEndFrame = 56;
-        private const int FailedAnimationStartFrame = 59;
-        private const int FailedAnimationEndFrame = 83;
+        private const int SpinningCircleAnimationEndFrame = 40;
+        private const int SuccessAnimationStartFrame = 60;
+        private const int SuccessAnimationEndFrame = 95;
 
         public IList<AnimationSection> AnimationSequence { get; } = new List<AnimationSection>
         {
             new AnimationSection(AnimationKeySpinningCircle, SpinningCircleAnimationStartFrame,
                     SpinningCircleAnimationEndFrame),
-            new AnimationSection(AnimationKeySuccess, SuccessAnimationStartFrame, SuccessAnimationEndFrame),
-            new AnimationSection(AnimationKeyFailed, FailedAnimationStartFrame, FailedAnimationEndFrame)
+            new AnimationSection(AnimationKeySuccess, SuccessAnimationStartFrame, SuccessAnimationEndFrame)
         };
 
-        public string AnimationJson => "LoadingProcessAnimation.json";
+        public string AnimationJson => "LocationOrangeCircle.json";
 
         readonly IFindAndExploreQuery _findAndExploreQuery;
         readonly ISchedulerProvider _schedulerProvider;
@@ -139,17 +135,14 @@ namespace FindAndExplore.ViewModels
         {
             PopupPresenter.ProgressAnimationCompleted += ProgressAnimationCompletedAsync;
 
-            PopupPresenter.ShowProgress("Let's see if we can find where you are...", null,
+            PopupPresenter.ShowProgress("Let's see if we can find where you are...",
                 AnimationJson, AnimationSequence);
 
             // Here we can go and get your current location this will come out
-            await Task.Delay(1500);
+            await Task.Delay(2500);
 
             // Success animation
-            PopupPresenter?.UpdateProgress("Ah ha, I found you!", null, AnimationKeySuccess);
-
-            // Fail animation
-            //PopupPresenter?.UpdateProgress("Oh no, I couldn't find you!", null, AnimationKeyFailed);
+            PopupPresenter?.UpdateProgress("Ah ha, I found you!", AnimationKeySuccess);
         }
 
         string GetGeoHash()
@@ -239,7 +232,7 @@ namespace FindAndExplore.ViewModels
 
         private async void ProgressAnimationCompletedAsync(object sender, AnimationSection animationSection)
         {
-            if (animationSection.Key.Equals(AnimationKeySuccess) || animationSection.Key.Equals(AnimationKeyFailed))
+            if (animationSection.Key.Equals(AnimationKeySuccess))
             {
                 // Delay so that the finish animation is shown
                 await Task.Delay(1000);

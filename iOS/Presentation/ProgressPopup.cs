@@ -25,22 +25,6 @@ namespace FindAndExplore.iOS.Presentation
             }
         }
 
-        public string ProgressHeaderText
-        {
-            get => _progressHeaderText;
-            set
-            {
-                if (value != null)
-                {
-                    _progressHeaderText = value;
-                    if (LabelProgressHeaderText != null)
-                    {
-                        LabelProgressHeaderText.Text = _progressHeaderText;
-                    }
-                }
-            }
-        }
-
         public string AnimationKey
         {
             get => _animationKey;
@@ -58,7 +42,6 @@ namespace FindAndExplore.iOS.Presentation
 
         private string _animationKey;
         private string _progressText;
-        private string _progressHeaderText;
 
         private readonly string _jsonAnimation;
         private readonly IList<AnimationSection> _animationSections;
@@ -76,7 +59,7 @@ namespace FindAndExplore.iOS.Presentation
 
             ViewPopupBackground.Layer.CornerRadius = PanelCornerRadius;
             LabelProgressText.Text = ProgressText;
-            LabelProgressHeaderText.Text = ProgressHeaderText;
+            LabelProgressText.Font = UIFont.FromName("MuseoSansRounded-500", 16f);
 
             AnimationViewLoading.Initialize(_jsonAnimation, _animationSections);
             AnimationViewLoading.AnimationCompletionEvent += AnimationViewLoading_AnimationCompletionEvent;

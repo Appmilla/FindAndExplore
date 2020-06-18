@@ -16,9 +16,6 @@ namespace FindAndExplore.iOS.Presentation
 		FindAndExplore.iOS.Presentation.AnimationView AnimationViewLoading { get; set; }
 
 		[Outlet]
-		UIKit.UILabel LabelProgressHeaderText { get; set; }
-
-		[Outlet]
 		UIKit.UILabel LabelProgressText { get; set; }
 
 		[Outlet]
@@ -39,11 +36,6 @@ namespace FindAndExplore.iOS.Presentation
 			if (ViewPopupBackground != null) {
 				ViewPopupBackground.Dispose ();
 				ViewPopupBackground = null;
-			}
-
-			if (LabelProgressHeaderText != null) {
-				LabelProgressHeaderText.Dispose ();
-				LabelProgressHeaderText = null;
 			}
 		}
 	}

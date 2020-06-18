@@ -217,9 +217,13 @@
     <Folder Include="Presentation\" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidAsset Include="Assets\LoadingProcessAnimation.json">
+    <AndroidAsset Include="Assets\LocationOrangeCircle.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </AndroidAsset>
+    <AndroidAsset Include="Assets\MuseoSansRounded_300.otf" />
+    <AndroidAsset Include="Assets\MuseoSansRounded_500.otf" />
+    <AndroidAsset Include="Assets\MuseoSansRounded_700.otf" />
+    <AndroidAsset Include="Assets\MuseoSansRounded_900.otf" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
 </Project>

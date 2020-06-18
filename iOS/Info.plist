@@ -44,5 +44,12 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Fonts/MuseoSansRounded-300.otf</string>
+		<string>Fonts/MuseoSansRounded-500.otf</string>
+		<string>Fonts/MuseoSansRounded-700.otf</string>
+		<string>Fonts/MuseoSansRounded-900.otf</string>
+	</array>
 </dict>
 </plist>
