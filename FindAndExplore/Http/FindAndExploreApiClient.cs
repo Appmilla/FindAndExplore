@@ -17,14 +17,14 @@ namespace FindAndExplore.Http
 
         public async Task<ApiServiceResponse<ICollection<SupportedArea>>> GetCurrentAreaAsync(double lat, double lon)
         {
-            var result = await _apiService.GetUrl<ICollection<SupportedArea>>($"GetCurrentArea?lat={lat}&lon={lon}").ConfigureAwait(false);
+            var result = await _apiService.GetUrl<ICollection<SupportedArea>>($"CurrentArea?lat={lat}&lon={lon}").ConfigureAwait(false);
 
             return result;
         }
 
         public async Task<ApiServiceResponse<ICollection<PointOfInterest>>> GetPointsOfInterestAsync(int locationId)
         {
-            var result = await _apiService.GetUrl<ICollection<PointOfInterest>>($"GetAreasPointsOfInterest?locationId={locationId}").ConfigureAwait(false);
+            var result = await _apiService.GetUrl<ICollection<PointOfInterest>>($"PointsOfInterest?locationId={locationId}").ConfigureAwait(false);
 
             return result;
         }
