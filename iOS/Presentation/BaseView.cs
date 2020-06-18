@@ -22,11 +22,11 @@ namespace FindAndExplore.iOS.Presentation
 
         public event EventHandler<AnimationSection> ProgressAnimationCompleted;
 
-        public void ShowProgress(string progressText, string progressHeaderText = null, string json = null,
+        public void ShowProgress(string progressText, string json = null,
             IList<AnimationSection> animationSections = null) => InvokeOnMainThread(() =>
-            ShowProgressDialog(progressText, progressHeaderText, json, animationSections));
+            ShowProgressDialog(progressText, json, animationSections));
 
-        private void ShowProgressDialog(string progressText, string progressHeaderText = null, string json = null,
+        private void ShowProgressDialog(string progressText, string json = null,
             IList<AnimationSection> animationSections = null)
         {
             var progressPopup = new ProgressPopup(json, animationSections)
@@ -34,7 +34,6 @@ namespace FindAndExplore.iOS.Presentation
                 ModalPresentationStyle = UIModalPresentationStyle.OverFullScreen,
                 ModalTransitionStyle = UIModalTransitionStyle.CrossDissolve,
                 ProgressText = progressText,
-                ProgressHeaderText = progressHeaderText
             };
 
             progressPopup.AnimationCompletionEvent += ProgressPopup_AnimationCompletionEvent;
@@ -42,25 +41,22 @@ namespace FindAndExplore.iOS.Presentation
             PresentViewController(progressPopup, false, null);
         }
 
-        public void UpdateProgress(string progressText = null, string progressHeaderText = null,
-           string animationKey = null)
+        public void UpdateProgress(string progressText = null, string animationKey = null)
         {
-            InvokeOnMainThread(() => UpdateProgressDialog(progressText, progressHeaderText, animationKey));
+            InvokeOnMainThread(() => UpdateProgressDialog(progressText, animationKey));
         }
 
-        private void UpdateProgressDialog(string progressText = null, string progressHeaderText = null,
-            string animationKey = null)
+        private void UpdateProgressDialog(string progressText = null, string animationKey = null)
         {
             if (PresentedViewController is ProgressPopup progressPopup)
             {
                 progressPopup.ProgressText = progressText;
-                progressPopup.ProgressHeaderText = progressHeaderText;
                 progressPopup.AnimationKey = animationKey;
             }
             else
             {
                 // if this is called first without a ShowProgress, lets kick that off instead
-                ShowProgress(progressText, progressHeaderText);
+                ShowProgress(progressText);
             }
         }
 

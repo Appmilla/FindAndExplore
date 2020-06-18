@@ -125,6 +125,7 @@
     <Folder Include="Http\" />
     <Folder Include="Assets.xcassets\red_marker.imageset\" />
     <Folder Include="Presentation\" />
+    <Folder Include="Resources\Fonts\" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
@@ -194,7 +195,19 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <BundleResource Include="LoadingProcessAnimation.json">
+    <BundleResource Include="Resources\Fonts\MuseoSansRounded-900.otf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </BundleResource>
+    <BundleResource Include="Resources\Fonts\MuseoSansRounded-300.otf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </BundleResource>
+    <BundleResource Include="Resources\Fonts\MuseoSansRounded-700.otf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </BundleResource>
+    <BundleResource Include="Resources\Fonts\MuseoSansRounded-500.otf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </BundleResource>
+    <BundleResource Include="LocationOrangeCircle.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </BundleResource>
   </ItemGroup>

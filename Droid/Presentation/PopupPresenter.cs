@@ -18,24 +18,23 @@ namespace FindAndExplore.Droid.Presentation
 
         public void DismissProgress() => _presentingActivity.RunOnUiThread(DismissProgressDialog);
 
-        public void ShowProgress(string progressText, string progressHeaderText = null, string json = null,
+        public void ShowProgress(string progressText, string json = null,
             IList<AnimationSection> animationSections = null) =>
-            _presentingActivity.RunOnUiThread(() => ShowProgressDialog(progressText, progressHeaderText, json, animationSections));
+            _presentingActivity.RunOnUiThread(() => ShowProgressDialog(progressText, json, animationSections));
 
-        public void UpdateProgress(string progressText = null, string progressHeaderText = null,
-            string animationKey = null) =>
-            _presentingActivity.RunOnUiThread(() => UpdateProgressDialog(progressText, progressHeaderText, animationKey));
+        public void UpdateProgress(string progressText = null, string animationKey = null) =>
+            _presentingActivity.RunOnUiThread(() => UpdateProgressDialog(progressText, animationKey));
 
-        private void ShowProgressDialog(string progressText, string progressHeaderText = null, string json = null,
+        private void ShowProgressDialog(string progressText, string json = null,
             IList<AnimationSection> animationSections = null)
         {
             if (_progressPopup != null)
             {
-                UpdateProgress(progressText, progressHeaderText);
+                UpdateProgress(progressText);
             }
             else
             {
-                _progressPopup = ProgressPopup.Instance(progressText, progressHeaderText, json, animationSections);
+                _progressPopup = ProgressPopup.Instance(progressText, json, animationSections);
 
                 var transaction = _presentingActivity.SupportFragmentManager.BeginTransaction();
                 transaction.Add(_progressPopup, nameof(ProgressPopup)).CommitAllowingStateLoss();
@@ -55,18 +54,17 @@ namespace FindAndExplore.Droid.Presentation
             }
         }
 
-        private void UpdateProgressDialog(string progressText = null, string progressHeaderText = null,
+        private void UpdateProgressDialog(string progressText = null,
             string animationKey = null)
         {
             if (_progressPopup == null)
             {
                 // if this is called first without a ShowProgress, lets kick that off instead
-                ShowProgress(progressText, progressHeaderText);
+                ShowProgress(progressText);
             }
             else
             {
                 _progressPopup.ProgressText = progressText;
-                _progressPopup.ProgressHeaderText = progressHeaderText;
                 _progressPopup.AnimationKey = animationKey;
             }
         }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Support.V4.App;
 using Android.Views;
@@ -12,22 +14,6 @@ namespace FindAndExplore.Droid.Presentation
     public class ProgressPopup : DialogFragment
     {
         public override bool Cancelable => false;
-
-        public string ProgressHeaderText
-        {
-            get => _progressHeaderText;
-            set
-            {
-                if (value != null)
-                {
-                    _progressHeaderText = value;
-                    if (_progressHeaderTextView != null)
-                    {
-                        _progressHeaderTextView.Text = _progressHeaderText;
-                    }
-                }
-            }
-        }
 
         public string ProgressText
         {
@@ -61,10 +47,8 @@ namespace FindAndExplore.Droid.Presentation
         public event EventHandler<AnimationSection> ProgressAnimationCompleted;
 
         private string _progressText;
-        private string _progressHeaderText;
         private string _animationKey;
         private TextView _progressTextView;
-        private TextView _progressHeaderTextView;
         private AnimationView _animationView;
 
         private readonly string _animationJson;
@@ -76,8 +60,12 @@ namespace FindAndExplore.Droid.Presentation
             _animationSections = animationSections;
         }
 
-        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) =>
-            inflater.Inflate(Resource.Layout.popup_progress, container);
+        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+        {
+            Dialog.Window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
+
+            return inflater.Inflate(Resource.Layout.popup_progress, container);
+        }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
@@ -85,9 +73,8 @@ namespace FindAndExplore.Droid.Presentation
 
             _progressTextView = view.FindViewById<TextView>(Resource.Id.LabelProgressMessage);
             _progressTextView.Text = ProgressText;
-
-            _progressHeaderTextView = view.FindViewById<TextView>(Resource.Id.LabelProgressHeader);
-            _progressHeaderTextView.Text = ProgressHeaderText;
+            _progressTextView.Typeface = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "MuseoSansRounded_500.otf");
+            _progressTextView.TextSize = 16f;
 
             _animationView = view.FindViewById<AnimationView>(Resource.Id.AnimationViewProgress);
             _animationView.AnimationCompletionEvent += OnAnimationViewAnimationCompletionEvent;
@@ -126,13 +113,12 @@ namespace FindAndExplore.Droid.Presentation
             _animationView.AnimationCompletionEvent -= OnAnimationViewAnimationCompletionEvent;
         }
 
-        public static ProgressPopup Instance(string progressText = null, string progressHeaderText = null, string animationJson = null,
+        public static ProgressPopup Instance(string progressText = null, string animationJson = null,
             IList<AnimationSection> animationSections = null)
         {
             var progressPopup = new ProgressPopup(animationJson, animationSections)
             {
-                ProgressText = progressText,
-                ProgressHeaderText = progressHeaderText
+                ProgressText = progressText
             };
 
             return progressPopup;

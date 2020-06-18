@@ -7,9 +7,9 @@ namespace FindAndExplore.Presentation
     {
         event EventHandler<AnimationSection> ProgressAnimationCompleted;
 
-        void ShowProgress(string progressText, string progressHeaderText = null, string json = null, IList<AnimationSection> animationSections = null);
+        void ShowProgress(string progressText, string json = null, IList<AnimationSection> animationSections = null);
 
-        void UpdateProgress(string progressText = null, string progressHeaderText = null, string animationKey = null);
+        void UpdateProgress(string progressText = null, string animationKey = null);
 
         void DismissProgress();
     }
