@@ -22,12 +22,19 @@ namespace FindAndExplore.iOS
     
     public partial class MapViewController : BaseView<MapViewModel>, IMapController
     {
-        static string GEOJSON_SOURCE_ID = "GEOJSON_SOURCE_ID";
-        static string MARKER_IMAGE_ID = "MARKER_IMAGE_ID";
-        static string MARKER_LAYER_ID = "MARKER_LAYER_ID";
-        
+        static string GEOJSON_POI_SOURCE_ID = "GEOJSON_SOURCE_ID";
+        static string RED_MARKER_IMAGE_ID = "MARKER_IMAGE_ID";
+        static string POI_MARKER_LAYER_ID = "MARKER_LAYER_ID";
+
+        static string GEOJSON_VENUE_SOURCE_ID = "GEOJSON_VENUE_SOURCE_ID";
+        static string BAR_MARKER_IMAGE_ID = "BAR_MARKER_IMAGE_ID";
+        static string VENUE_MARKER_LAYER_ID = "VENUE_MARKER_LAYER_ID";
+
         private MGLMapView _mapView;
-        private MGLShapeSource _source;
+
+        private MGLShapeSource _pointsOfInterestSource;
+        private MGLShapeSource _venuesSource;
+
         private MGLStyle _style;
         
         public MapViewController (IntPtr handle) : base (handle)
@@ -109,7 +116,8 @@ namespace FindAndExplore.iOS
         {
             _style = style;
             
-            this.WhenAnyValue(x => x.ViewModel.Features).Subscribe(OnGeoSourceChanged);
+            this.WhenAnyValue(x => x.ViewModel.PointOfInterestFeatures).Subscribe(OnPointsOfInterestChanged);
+            this.WhenAnyValue(x => x.ViewModel.VenueFeatures).Subscribe(OnVenuesChanged);
             this.WhenAnyValue(x => x.ViewModel.UserLocation).Subscribe(OnUserLocationChanged);
         }
 
@@ -117,14 +125,19 @@ namespace FindAndExplore.iOS
         {
         }
         
-        private void OnGeoSourceChanged(GeoJSON.Net.Feature.FeatureCollection featureCollection)
+        private void OnPointsOfInterestChanged(GeoJSON.Net.Feature.FeatureCollection featureCollection)
         {
-            UpdateGeoSource();
+            UpdatePointsOfInterestGeoSource();
         }
-        
-        private void SetupGeoSource()
+
+        private void OnVenuesChanged(GeoJSON.Net.Feature.FeatureCollection featureCollection)
         {
-            var data = NSData.FromString(ViewModel.Features.ToGeoJsonFeatureSource());
+            UpdateVenuesGeoSource();
+        }
+
+        private void SetupPointsOfInterestGeoSource()
+        {
+            var data = NSData.FromString(ViewModel.PointOfInterestFeatures.ToGeoJsonFeatureSource());
 
             var shape = MGLShape.ShapeWithData(data, (int)NSStringEncoding.UTF8, out var error);
 
@@ -133,37 +146,82 @@ namespace FindAndExplore.iOS
             //options.Add(MGLShapeSourceOptions.ClusterRadius, NSNumber.FromNInt(14));
             //options.Add(MGLShapeSourceOptions.ClusterRadius, NSNumber.FromNInt(50));
             
-            var source  = new MGLShapeSource(GEOJSON_SOURCE_ID, shape, new NSDictionary<NSString, NSObject>(options.Keys, options.Values));
+            var source  = new MGLShapeSource(GEOJSON_POI_SOURCE_ID, shape, new NSDictionary<NSString, NSObject>(options.Keys, options.Values));
             
             if (source != null)
             {
-                _source = source;
+                _pointsOfInterestSource = source;
                 
-                _style.AddSource(_source);
+                _style.AddSource(_pointsOfInterestSource);
                 
-                var layer = new MGLSymbolStyleLayer(identifier: MARKER_LAYER_ID, source: _source);
+                var layer = new MGLSymbolStyleLayer(identifier: POI_MARKER_LAYER_ID, source: _pointsOfInterestSource);
                 // either of these works
                 //layer.IconImageName = NSExpression.FromConstant((NSString)MARKER_IMAGE_ID); 
-                layer.IconImageName = NSExpression.FromConstant(new NSString(MARKER_IMAGE_ID));
+                layer.IconImageName = NSExpression.FromConstant(new NSString(RED_MARKER_IMAGE_ID));
                 _style.AddLayer(layer);
 
-                _style.SetImage(UIImage.FromBundle("red_marker"), MARKER_IMAGE_ID);
+                _style.SetImage(UIImage.FromBundle("red_marker"), RED_MARKER_IMAGE_ID);
             }
         }
         
-        private void UpdateGeoSource()
+        private void UpdatePointsOfInterestGeoSource()
         {
-            if(_source == null)
+            if(_pointsOfInterestSource == null)
             {
-                SetupGeoSource();
+                SetupPointsOfInterestGeoSource();
             }
             else
             {
-                var data = NSData.FromString(ViewModel.Features.ToGeoJsonFeatureSource());
+                var data = NSData.FromString(ViewModel.PointOfInterestFeatures.ToGeoJsonFeatureSource());
 
                 var shape = MGLShape.ShapeWithData(data, (int)NSStringEncoding.UTF8, out var error);
 
-                _source.Shape = shape;    
+                _pointsOfInterestSource.Shape = shape;    
+            }
+        }
+
+        private void SetupVenuesGeoSource()
+        {
+            var data = NSData.FromString(ViewModel.VenueFeatures.ToGeoJsonFeatureSource());
+
+            var shape = MGLShape.ShapeWithData(data, (int)NSStringEncoding.UTF8, out var error);
+
+            var options = new NSMutableDictionary<NSString, NSObject>();
+            //options.Add(MGLShapeSourceOptions.Clustered, NSNumber.FromBoolean(true));
+            //options.Add(MGLShapeSourceOptions.ClusterRadius, NSNumber.FromNInt(14));
+            //options.Add(MGLShapeSourceOptions.ClusterRadius, NSNumber.FromNInt(50));
+
+            var source = new MGLShapeSource(GEOJSON_VENUE_SOURCE_ID, shape, new NSDictionary<NSString, NSObject>(options.Keys, options.Values));
+
+            if (source != null)
+            {
+                _venuesSource = source;
+
+                _style.AddSource(_venuesSource);
+
+                var layer = new MGLSymbolStyleLayer(identifier: VENUE_MARKER_LAYER_ID, source: _venuesSource);
+                // either of these works
+                //layer.IconImageName = NSExpression.FromConstant((NSString)BAR_MARKER_IMAGE_ID); 
+                layer.IconImageName = NSExpression.FromConstant(new NSString(BAR_MARKER_IMAGE_ID));
+                _style.AddLayer(layer);
+
+                _style.SetImage(UIImage.FromBundle("local_bar"), BAR_MARKER_IMAGE_ID);
+            }
+        }
+
+        private void UpdateVenuesGeoSource()
+        {
+            if (_venuesSource == null)
+            {
+                SetupVenuesGeoSource();
+            }
+            else
+            {
+                var data = NSData.FromString(ViewModel.VenueFeatures.ToGeoJsonFeatureSource());
+
+                var shape = MGLShape.ShapeWithData(data, (int)NSStringEncoding.UTF8, out var error);
+
+                _venuesSource.Shape = shape;
             }
         }
 
