@@ -4,6 +4,7 @@ using CoreAnimation;
 using CoreLocation;
 using FindAndExplore.Extensions;
 using FindAndExplore.iOS.Presentation;
+using FindAndExplore.Mapping;
 using FindAndExplore.ViewModels;
 using Foundation;
 using GeoJSON.Net.Geometry;
@@ -30,6 +31,8 @@ namespace FindAndExplore.iOS
         static string BAR_MARKER_IMAGE_ID = "BAR_MARKER_IMAGE_ID";
         static string VENUE_MARKER_LAYER_ID = "VENUE_MARKER_LAYER_ID";
 
+        readonly IMapControl _mapControl;
+        
         private MGLMapView _mapView;
 
         private MGLShapeSource _pointsOfInterestSource;
@@ -39,6 +42,7 @@ namespace FindAndExplore.iOS
         
         public MapViewController (IntPtr handle) : base (handle)
         {
+            _mapControl = ServiceLocator.Current.GetInstance<IMapControl>();
             ViewModel = ServiceLocator.Current.GetInstance<MapViewModel>();
         }
 
@@ -53,6 +57,7 @@ namespace FindAndExplore.iOS
             {
                 Delegate = new AppMGLMapViewDelegate
                 {
+                    MapControl = _mapControl,
                     ViewModel = ViewModel,
                     MapController = this
                 }
@@ -239,6 +244,8 @@ namespace FindAndExplore.iOS
     
     public class AppMGLMapViewDelegate : MGLMapViewDelegate
     {
+        public IMapControl MapControl { get; set; }
+        
         public MapViewModel ViewModel { get; set; }
         
         public IMapController MapController { get; set; }
@@ -255,8 +262,8 @@ namespace FindAndExplore.iOS
         }
 
         public override void MapViewRegionDidChange(MGLMapView mapView, bool animated)
-        {          
-            ViewModel.CenterLocation = new Position(mapView.CenterCoordinate.Latitude, mapView.CenterCoordinate.Longitude);
+        {                      
+            MapControl.Center = new Position(mapView.CenterCoordinate.Latitude, mapView.CenterCoordinate.Longitude);
         }
     }
 }
