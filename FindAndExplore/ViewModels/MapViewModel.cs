@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using DynamicData;
 using FindAndExplore.DynamicData;
 using FindAndExplore.Extensions;
+using FindAndExplore.Mapping;
 using FindAndExplore.Presentation;
 using FindAndExplore.Queries;
 using FindAndExplore.Reactive;
@@ -44,10 +45,13 @@ namespace FindAndExplore.ViewModels
 
         public string AnimationJson => "LocationOrangeCircle.json";
 
+        readonly IMapControl _mapControl;
         readonly IFindAndExploreQuery _findAndExploreQuery;
         readonly IFoursquareQuery _foursquareQuery;
         readonly ISchedulerProvider _schedulerProvider;
 
+        readonly AsyncLock Mutex = new AsyncLock();
+        
         ReadOnlyObservableCollection<PointOfInterest> _pointsOfInterest;
 
         public ReadOnlyObservableCollection<PointOfInterest> PointsOfInterest
@@ -74,18 +78,14 @@ namespace FindAndExplore.ViewModels
         private static readonly Func<Venue, string> VenueKeySelector = venue => venue.Id;
         readonly SourceCache<Venue, string> _venuesCache = new SourceCache<Venue, string>(VenueKeySelector);
 
-
-        /*
-        private static readonly Func<FeatureCollection, string> FeatureCollectionKeySelector = fc => fc.;
-        readonly SourceCache<FeatureCollection, string> _featureCollectionCache = new SourceCache<FeatureCollection, string>(FeatureCollectionKeySelector);
-        */
-
         [Reactive]
         public FeatureCollection PointOfInterestFeatures { get; set; }
 
         [Reactive]
         public FeatureCollection VenueFeatures { get; set; }
 
+        public ReactiveCommand<Position, Unit> MapCenterLocationChanged { get; }
+        
         public ReactiveCommand<Unit, ICollection<PointOfInterest>> LoadPointsOfInterest { get; }
 
         public ReactiveCommand<Unit, ICollection<PointOfInterest>> RefreshPointsOfInterest { get; }
@@ -94,47 +94,35 @@ namespace FindAndExplore.ViewModels
 
         public ReactiveCommand<Unit, ICollection<Venue>> RefreshVenues { get; }
 
-
         public ReactiveCommand<Unit, Unit> CancelInFlightQueries { get; }
 
         Geohasher _geohasher = new Geohasher();
 
         SupportedArea CurrentArea { get; set; }
-
-        private Position _centerLocation = new Position(51.0664995383346f, -3.0453250843303f);
-
-        public Position CenterLocation
-        {
-            get => _centerLocation;
-            set
-            {
-                if (_centerLocation != value)
-                {
-                    this.RaiseAndSetIfChanged(ref _centerLocation, value);
-
-                    if (_centerLocation.Latitude != 0 && _centerLocation.Longitude != 0)                        
-                        CheckAndUpdateCurrentArea();
-                }
-            }
-        }
-
+        
         [Reactive]
         public Position UserLocation { get; set; }
 
         public MapViewModel(
+            IMapControl mapControl,
             IFindAndExploreQuery findAndExploreQuery,
             IFoursquareQuery foursquareQuery,
             ISchedulerProvider schedulerProvider)
         {
+            _mapControl = mapControl;
             _findAndExploreQuery = findAndExploreQuery;
             _foursquareQuery = foursquareQuery;
-            _schedulerProvider = schedulerProvider;
+            _schedulerProvider = schedulerProvider;            
             
             this.WhenAnyValue(x => x._findAndExploreQuery.IsBusy)
                 .ObserveOn(schedulerProvider.MainThread)
                 .ToPropertyEx(this, x => x.IsBusy, scheduler: _schedulerProvider.MainThread);
             
-
+            MapCenterLocationChanged = ReactiveCommand.CreateFromTask<Position, Unit>
+                ( _ => OnMapCenterLocationChanged(),
+                outputScheduler: schedulerProvider.ThreadPool);
+            //MapCenterLocationChanged.ThrownExceptions.Subscribe(errorReporter.TrackError);
+            
             LoadPointsOfInterest = ReactiveCommand.CreateFromObservable(
                 () => _findAndExploreQuery.GetPointsOfInterest(CurrentArea.LocationId, GetCacheKey()).TakeUntil(CancelInFlightQueries),
                 this.WhenAnyValue(x => x.IsBusy).Select(x => !x),
@@ -150,14 +138,14 @@ namespace FindAndExplore.ViewModels
             RefreshPointsOfInterest.Subscribe(PointsOfInterest_OnNext);
 
             LoadVenues = ReactiveCommand.CreateFromObservable(
-                () => _foursquareQuery.GetVenues(CenterLocation.Latitude, CenterLocation.Longitude, Venues_Radius, GetCacheKey()).TakeUntil(CancelInFlightQueries),
+                () => _foursquareQuery.GetVenues(_mapControl.Center.Latitude, _mapControl.Center.Longitude, Venues_Radius, GetCacheKey()).TakeUntil(CancelInFlightQueries),
                 this.WhenAnyValue(x => x.IsBusy).Select(x => !x),
                 outputScheduler: _schedulerProvider.ThreadPool);
             LoadVenues.ThrownExceptions.Subscribe(Venues_OnError);
             LoadVenues.Subscribe(Venues_OnNext);
 
             RefreshVenues = ReactiveCommand.CreateFromObservable(
-                () => _foursquareQuery.RefreshVenues(CenterLocation.Latitude, CenterLocation.Longitude, Venues_Radius, GetCacheKey()).TakeUntil(CancelInFlightQueries),
+                () => _foursquareQuery.RefreshVenues(_mapControl.Center.Latitude, _mapControl.Center.Longitude, Venues_Radius, GetCacheKey()).TakeUntil(CancelInFlightQueries),
                 this.WhenAnyValue(x => x.IsBusy).Select(x => !x),
                 outputScheduler: _schedulerProvider.ThreadPool);
             RefreshVenues.ThrownExceptions.Subscribe(Venues_OnError);
@@ -172,6 +160,11 @@ namespace FindAndExplore.ViewModels
                     d => d.RefreshVenues.IsExecuting,
                     (a, b, c, d) => a || b || c || d));
 
+            this.WhenAnyValue(x => x._mapControl.Center)
+                .ObserveOn(schedulerProvider.ThreadPool)
+                .Throttle(TimeSpan.FromSeconds(0.2), schedulerProvider.ThreadPool)
+                .InvokeCommand(MapCenterLocationChanged);
+                
             _ = _pointsOfInterestCache.Connect()
                 .Bind(out _pointsOfInterest)
                 .ObserveOn(schedulerProvider.MainThread)        //ensure operation is on the UI thread;
@@ -183,7 +176,38 @@ namespace FindAndExplore.ViewModels
                 .ObserveOn(schedulerProvider.MainThread)        //ensure operation is on the UI thread;
                 .DisposeMany()                              //automatic disposal
                 .Subscribe();
-        }        
+        }
+        
+        private async Task<Unit> OnMapCenterLocationChanged()
+        {           
+            if (_mapControl.Center == null)
+                return Unit.Default;
+
+            if (_mapControl.Center.Latitude == 0 && _mapControl.Center.Longitude == 0)
+                return Unit.Default;
+
+            try
+            {
+                Observable.Return(Unit.Default).InvokeCommand(RefreshVenues);
+
+                var area = await GetCurrentArea();
+                if (area != null)
+                {
+                    if (area?.LocationId != CurrentArea?.LocationId)
+                    {
+                        CurrentArea = area;
+
+                        Observable.Return(Unit.Default).InvokeCommand(RefreshPointsOfInterest);
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+            }            
+
+            return Unit.Default;
+        }     
+        
 
         public async Task OnMapLoaded()
         {
@@ -206,7 +230,7 @@ namespace FindAndExplore.ViewModels
 
             //precision level 5 is approx 4.9km x 4.9km so as long as the current map centre is within that square then the previously cached data can be used
             //precision level 6 is approx 1.2km x 0.61km 
-            var geoHash = _geohasher.Encode(CenterLocation.Latitude, CenterLocation.Longitude, 6);
+            var geoHash = _geohasher.Encode(_mapControl.Center.Latitude, _mapControl.Center.Longitude, 6);
             return geoHash;
         }
 
@@ -234,9 +258,11 @@ namespace FindAndExplore.ViewModels
 
         void UpdatePointsOfInterest(ICollection<PointOfInterest> pointsOfInterest)
         {
+            var pointsOfInterestFeatureCollection = pointsOfInterest.ToFeatureCollection();
+            
             _schedulerProvider.MainThread.Schedule(_ =>
             {
-                PointOfInterestFeatures = pointsOfInterest.ToFeatureCollection();
+                PointOfInterestFeatures = pointsOfInterestFeatureCollection;
                 _pointsOfInterestCache.UpdateCache(pointsOfInterest, PointsOfInterestKeySelector);
             });
         }
@@ -260,9 +286,11 @@ namespace FindAndExplore.ViewModels
 
         void UpdateVenues(ICollection<Venue> venues)
         {
+            var venuesFeatureCollection = venues.ToFeatureCollection();
+            
             _schedulerProvider.MainThread.Schedule(_ =>
             {
-                VenueFeatures = venues.ToFeatureCollection();
+                VenueFeatures = venuesFeatureCollection;
                 _venuesCache.UpdateCache(venues, VenueKeySelector);
             });
         }
@@ -271,43 +299,9 @@ namespace FindAndExplore.ViewModels
         {            
         }
 
-        readonly AsyncLock Mutex = new AsyncLock();
-
-        void CheckAndUpdateCurrentArea()
-        {
-            Task.Run(async () =>
-            {
-                var mutexLock = await Mutex.LockAsync();
-
-                try
-                {
-                    Observable.Return(Unit.Default).InvokeCommand(RefreshVenues);
-
-                    var area = await GetCurrentArea();
-                    if (area != null)
-                    {
-                        if (area?.LocationId != CurrentArea?.LocationId)
-                        {
-                            CurrentArea = area;
-
-                            Observable.Return(Unit.Default).InvokeCommand(RefreshPointsOfInterest);                            
-                        }
-                    }
-                }
-                catch (Exception exception)
-                {
-                }
-                finally
-                {
-                    mutexLock.Dispose();
-                }
-            });
-        }
-
-
         async Task<SupportedArea> GetCurrentArea()
         {
-            var areas = await _findAndExploreQuery.GetCurrentArea(CenterLocation.Latitude, CenterLocation.Longitude, GetAreaCacheKey());
+            var areas = await _findAndExploreQuery.GetCurrentArea(_mapControl.Center.Latitude, _mapControl.Center.Longitude, GetAreaCacheKey());
 
             return areas?.SingleOrDefault();
         }

@@ -16,6 +16,7 @@ using Appmilla.RestApiClient.Logging.Interfaces;
 using FindAndExplore.AppEvents;
 using FindAndExplore.Configuration;
 using FindAndExplore.Http;
+using FindAndExplore.Mapping;
 using FindAndExplore.Queries;
 using FindAndExplore.Reactive;
 using FindAndExplore.ViewModels;
@@ -102,6 +103,9 @@ namespace FindAndExplore.Bootstrap
             builder.RegisterType<FindAndExploreApiClient>().AsSelf().SingleInstance();
             builder.RegisterType<FoursquareApiClient>().AsSelf().SingleInstance();
             builder.RegisterType<ConnectivityMonitor>().As<IConnectivityMonitor>().SingleInstance();
+            
+            //TODO try AsImplementedInterfaces later
+            builder.RegisterType<MapControl>().As<IMapControl>().As<IMapDelegate>().As<IMapCamera>().SingleInstance();
 
             builder.Register(c =>
             {

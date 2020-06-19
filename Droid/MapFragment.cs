@@ -16,6 +16,7 @@ using DynamicData;
 using DynamicData.Binding;
 using FindAndExplore.Droid.Presentation;
 using FindAndExplore.Extensions;
+using FindAndExplore.Mapping;
 using FindAndExplore.ViewModels;
 using GeoJSON.Net.Geometry;
 using Java.Lang;
@@ -38,6 +39,8 @@ namespace FindAndExplore.Droid
         static string BAR_MARKER_IMAGE_ID = "BAR_MARKER_IMAGE_ID";
         static string VENUE_MARKER_LAYER_ID = "VENUE_MARKER_LAYER_ID";
 
+        readonly IMapControl _mapControl;
+        
         MapView _mapView;
         MapboxMap _mapboxMap;
         SymbolManager _symbolManager;
@@ -52,6 +55,7 @@ namespace FindAndExplore.Droid
         
         public MapFragment()
         {
+            _mapControl = ServiceLocator.Current.GetInstance<IMapControl>();
             ViewModel = ServiceLocator.Current.GetInstance<MapViewModel>();
         }
 
@@ -173,13 +177,13 @@ namespace FindAndExplore.Droid
         }
 
         public void OnCameraMove()
-        {
-            ViewModel.CenterLocation = new Position(_mapboxMap.CameraPosition.Target.Latitude, _mapboxMap.CameraPosition.Target.Longitude);
+        {            
+            _mapControl.Center = new Position(_mapboxMap.CameraPosition.Target.Latitude, _mapboxMap.CameraPosition.Target.Longitude);
         }
 
         public void OnFling()
-        {
-            ViewModel.CenterLocation = new Position(_mapboxMap.CameraPosition.Target.Latitude, _mapboxMap.CameraPosition.Target.Longitude);
+        {            
+            _mapControl.Center = new Position(_mapboxMap.CameraPosition.Target.Latitude, _mapboxMap.CameraPosition.Target.Longitude);
         }
 
         private void SetupPointsOfInterestGeoSource()
