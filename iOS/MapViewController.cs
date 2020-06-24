@@ -21,7 +21,9 @@ namespace FindAndExplore.iOS
         void OnMapLoaded();
     }
     
-    public partial class MapViewController : BaseView<MapViewModel>, IMapController
+    public partial class MapViewController : BaseView<MapViewModel>,
+                                                IMapController,
+                                                IUIGestureRecognizerDelegate
     {
         static string GEOJSON_POI_SOURCE_ID = "GEOJSON_SOURCE_ID";
         static string RED_MARKER_IMAGE_ID = "MARKER_IMAGE_ID";
@@ -58,11 +60,13 @@ namespace FindAndExplore.iOS
                 Delegate = new AppMGLMapViewDelegate
                 {
                     MapControl = _mapControl,
-                    ViewModel = ViewModel,
                     MapController = this
                 }
             };
+            
             View.Add(_mapView);
+
+            SetupMapGestureRecognizers();
 
             // Leave for now as we may want to add markers using Symbol Manager and this is a useful reference
             /*
@@ -240,25 +244,53 @@ namespace FindAndExplore.iOS
                 _mapView.SetCamera(camera, 2.0, CAMediaTimingFunction.FromName(CAMediaTimingFunction.EaseIn));
             }
         }
+        
+        private void SetupMapGestureRecognizers()
+        {
+            var tapGest = new UITapGestureRecognizer();
+            tapGest.NumberOfTapsRequired = 1;
+            tapGest.CancelsTouchesInView = false;
+            tapGest.Delegate = this;
+            _mapView.AddGestureRecognizer(tapGest);
+            tapGest.AddTarget((NSObject obj) =>
+            {
+                var gesture = obj as UITapGestureRecognizer;
+                if (gesture.State == UIGestureRecognizerState.Ended)
+                {
+                    var point = gesture.LocationInView(_mapView);
+                    var touchedCoordinate = _mapView.ConvertPoint(point, _mapView);
+                    var position = new Position(touchedCoordinate.Latitude, touchedCoordinate.Longitude);
+
+                    _mapControl.DidTapOnMap?.Execute(position);
+                    
+                }
+            });
+        }
     }
     
     public class AppMGLMapViewDelegate : MGLMapViewDelegate
     {
         public IMapControl MapControl { get; set; }
         
-        public MapViewModel ViewModel { get; set; }
-        
         public IMapController MapController { get; set; }
 
         public override void MapViewDidFinishLoadingStyle(MGLMapView mapView, MGLStyle style)
         {
+            var mapStyle = new MapStyle
+            {
+                UrlString = mapView.StyleURL.AbsoluteString,
+                Name = style.Name
+            };
+            MapControl.DidFinishLoadingStyle?.Execute(mapStyle);
+            
             MapController.OnStyleLoaded(style);
         }
 
         public override void MapViewDidFinishLoadingMap(MGLMapView mapView)
         {
             MapController.OnMapLoaded();
-            ViewModel?.OnMapLoaded().ConfigureAwait(false);
+            
+            MapControl.DidFinishLoading?.Execute();
         }
 
         public override void MapViewRegionDidChange(MGLMapView mapView, bool animated)
