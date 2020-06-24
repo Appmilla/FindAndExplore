@@ -8,6 +8,7 @@ using Android;
 using Android.Content.PM;
 using AndroidX.Core.App;
 using FindAndExplore.Droid.Bootstrap;
+using Android.Runtime;
 
 namespace FindAndExplore.Droid
 {
@@ -20,8 +21,6 @@ namespace FindAndExplore.Droid
         {
             base.OnCreate(savedInstanceState);
 
-            RequestLocationPermission();
-
             Com.Mapbox.Mapboxsdk.Mapbox.GetInstance(this, "pk.eyJ1Ijoicndvb2xsY290dCIsImEiOiJja2FnaWlsMHQwNnYyMnpvNWhhbTd1OTRiIn0.5pL3D0LvtE8A6Yuz40RhIA");
             Com.Mapbox.Mapboxsdk.Mapbox.Telemetry.SetDebugLoggingEnabled(true);
 
@@ -32,7 +31,7 @@ namespace FindAndExplore.Droid
 
             AndroidBootstrapper.Bootstrap();
 
-            LoadFragment(Resource.Id.menu_map);
+            RequestLocationPermission();
         }
 
         private void RequestLocationPermission()
@@ -41,6 +40,15 @@ namespace FindAndExplore.Droid
             {
                 ActivityCompat.RequestPermissions(this, new[] { Manifest.Permission.AccessFineLocation }, 88);
             }
+            else
+            {
+                LoadFragment(Resource.Id.menu_map);
+            }
+        }
+
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
+        {
+            LoadFragment(Resource.Id.menu_map);
         }
 
         private void BottomNavigation_NavigationItemSelected(object sender, BottomNavigationView.NavigationItemSelectedEventArgs e)

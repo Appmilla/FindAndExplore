@@ -6,9 +6,11 @@ using Android.App;
 using Android.Graphics;
 using Android.OS;
 using Android.Views;
+using Android.Views.Animations;
 using Com.Mapbox.Geojson;
 using Com.Mapbox.Mapboxsdk.Camera;
 using Com.Mapbox.Mapboxsdk.Geometry;
+using Com.Mapbox.Mapboxsdk.Location;
 using Com.Mapbox.Mapboxsdk.Maps;
 using Com.Mapbox.Mapboxsdk.Plugins.Annotation;
 using Com.Mapbox.Mapboxsdk.Style.Layers;
@@ -120,7 +122,6 @@ namespace FindAndExplore.Droid
 
             this.WhenAnyValue(x => x.ViewModel.PointOfInterestFeatures).Subscribe(OnPointsOfInterestChanged);
             this.WhenAnyValue(x => x.ViewModel.VenueFeatures).Subscribe(OnVenuesChanged);
-            this.WhenAnyValue(x => x.ViewModel.UserLocation).Subscribe(OnUserLocationChanged);
 
             // Leave for now as we may want to add markers using Symbol Manager and this is a useful reference
             /*
@@ -149,6 +150,20 @@ namespace FindAndExplore.Droid
 
             _mapboxMap.MoveCamera(CameraUpdateFactory.NewCameraPosition(position));
             
+            var locationComponentOptions =
+                LocationComponentOptions.InvokeBuilder(Activity);
+
+            LocationComponentActivationOptions locationComponentActivationOptions = new LocationComponentActivationOptions
+                .Builder(Activity, style)
+                .LocationComponentOptions(locationComponentOptions.Build())
+                .Build();
+
+            var locationComponent = _mapboxMap.LocationComponent;
+            locationComponent.ActivateLocationComponent(locationComponentActivationOptions);
+            locationComponent.LocationComponentEnabled = true;
+            _mapControl.LastKnownUserPosition = new Position(locationComponent.LastKnownLocation.Latitude, locationComponent.LastKnownLocation.Longitude);
+            OnUserLocationFound(_mapControl.LastKnownUserPosition);
+
             _mapControl.DidFinishLoading?.Execute();
         }
         
@@ -277,13 +292,13 @@ namespace FindAndExplore.Droid
             }
         }*/
 
-        private void OnUserLocationChanged(Position position)
+        private void OnUserLocationFound(Position position)
         {
             if (position != null)
             {
                 var cameraPosition = new CameraPosition.Builder()
-                        .Target(new LatLng(ViewModel.UserLocation.Latitude, ViewModel.UserLocation.Longitude))
-                        .Zoom(11)
+                        .Target(new LatLng(position.Latitude, position.Longitude))
+                        .Zoom(13)
                         .Build();
 
                 _mapboxMap.AnimateCamera(CameraUpdateFactory.NewCameraPosition(cameraPosition), 2000);
