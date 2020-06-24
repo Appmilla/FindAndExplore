@@ -51,5 +51,9 @@
 		<string>Fonts/MuseoSansRounded-700.otf</string>
 		<string>Fonts/MuseoSansRounded-900.otf</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Shows your location on the map and helps improve the map</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Shows your location on the map and helps improve the map</string>
 </dict>
 </plist>

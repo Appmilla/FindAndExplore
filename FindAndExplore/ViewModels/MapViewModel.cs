@@ -27,22 +27,22 @@ namespace FindAndExplore.ViewModels
     {
         private const int Venues_Radius = 5000;
 
-        private const string AnimationKeySpinningCircle = "PulsingCircle";
-        private const string AnimationKeySuccess = "Success";
+        //public const string AnimationKeySuccess = "Success";
+        //public const string AnimationKeySpinningCircle = "PulsingCircle";
 
-        private const int SpinningCircleAnimationStartFrame = 0;
-        private const int SpinningCircleAnimationEndFrame = 40;
-        private const int SuccessAnimationStartFrame = 60;
-        private const int SuccessAnimationEndFrame = 95;
+        //private const int SpinningCircleAnimationStartFrame = 0;
+        //private const int SpinningCircleAnimationEndFrame = 40;
+        //private const int SuccessAnimationStartFrame = 60;
+        //private const int SuccessAnimationEndFrame = 95;
 
-        public IList<AnimationSection> AnimationSequence { get; } = new List<AnimationSection>
-        {
-            new AnimationSection(AnimationKeySpinningCircle, SpinningCircleAnimationStartFrame,
-                    SpinningCircleAnimationEndFrame),
-            new AnimationSection(AnimationKeySuccess, SuccessAnimationStartFrame, SuccessAnimationEndFrame)
-        };
+        //public IList<AnimationSection> AnimationSequence { get; } = new List<AnimationSection>
+        //{
+        //    new AnimationSection(AnimationKeySpinningCircle, SpinningCircleAnimationStartFrame,
+        //            SpinningCircleAnimationEndFrame),
+        //    new AnimationSection(AnimationKeySuccess, SuccessAnimationStartFrame, SuccessAnimationEndFrame)
+        //};
 
-        public string AnimationJson => "LocationOrangeCircle.json";
+        //public string AnimationJson => "LocationOrangeCircle.json";
 
         readonly IMapControl _mapControl;
         readonly IFindAndExploreQuery _findAndExploreQuery;
@@ -96,9 +96,6 @@ namespace FindAndExplore.ViewModels
         Geohasher _geohasher = new Geohasher();
 
         SupportedArea CurrentArea { get; set; }
-        
-        [Reactive]
-        public Position UserLocation { get; set; }
 
         public MapViewModel(
             IMapControl mapControl,
@@ -231,17 +228,6 @@ namespace FindAndExplore.ViewModels
         
         private async Task<Unit> OnMapLoaded()
         {
-            PopupPresenter.ProgressAnimationCompleted += ProgressAnimationCompletedAsync;
-
-            PopupPresenter.ShowProgress("Let's see if we can find where you are...",
-                AnimationJson, AnimationSequence);
-
-            // Here we can go and get your current location this will come out
-            await Task.Delay(2500);
-
-            // Success animation
-            PopupPresenter?.UpdateProgress("Ah ha, I found you!", AnimationKeySuccess);
-            
             return Unit.Default;
         }
 
@@ -331,19 +317,6 @@ namespace FindAndExplore.ViewModels
             var areas = await _findAndExploreQuery.GetCurrentArea(_mapControl.Center.Latitude, _mapControl.Center.Longitude, GetAreaCacheKey());
 
             return areas?.SingleOrDefault();
-        }
-
-        private async void ProgressAnimationCompletedAsync(object sender, AnimationSection animationSection)
-        {
-            if (animationSection.Key.Equals(AnimationKeySuccess))
-            {
-                // Delay so that the finish animation is shown
-                await Task.Delay(1000);
-
-                // Set the found user location
-                UserLocation = new Position(51.137506, -3.008960);
-                PopupPresenter.DismissProgress();
-            }
         }
     }
 }

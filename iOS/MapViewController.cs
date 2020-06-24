@@ -1,10 +1,13 @@
 using System;
+using System.Threading.Tasks;
 using CommonServiceLocator;
 using CoreAnimation;
+using CoreGraphics;
 using CoreLocation;
 using FindAndExplore.Extensions;
 using FindAndExplore.iOS.Presentation;
 using FindAndExplore.Mapping;
+using FindAndExplore.Presentation;
 using FindAndExplore.ViewModels;
 using Foundation;
 using GeoJSON.Net.Geometry;
@@ -19,6 +22,8 @@ namespace FindAndExplore.iOS
         void OnStyleLoaded(MGLStyle style);
         
         void OnMapLoaded();
+
+        void OnUserLocationFound(Position position);
     }
     
     public partial class MapViewController : BaseView<MapViewModel>,
@@ -124,16 +129,27 @@ namespace FindAndExplore.iOS
         public void OnStyleLoaded(MGLStyle style)
         {
             _style = style;
+            _mapView.ShowsUserLocation = true;
             
             this.WhenAnyValue(x => x.ViewModel.PointOfInterestFeatures).Subscribe(OnPointsOfInterestChanged);
             this.WhenAnyValue(x => x.ViewModel.VenueFeatures).Subscribe(OnVenuesChanged);
-            this.WhenAnyValue(x => x.ViewModel.UserLocation).Subscribe(OnUserLocationChanged);
         }
 
         public void OnMapLoaded()
         {
         }
-        
+
+        public void OnUserLocationFound(Position position)
+        {
+            if (position != null)
+            {
+                var camera = new MGLMapCamera();
+                camera.CenterCoordinate = new CLLocationCoordinate2D(position.Latitude, position.Longitude);
+                camera.Altitude = 20000;
+                _mapView.SetCamera(camera, 2.0, CAMediaTimingFunction.FromName(CAMediaTimingFunction.EaseIn));
+            }
+        }
+
         private void OnPointsOfInterestChanged(GeoJSON.Net.Feature.FeatureCollection featureCollection)
         {
             UpdatePointsOfInterestGeoSource();
@@ -294,8 +310,18 @@ namespace FindAndExplore.iOS
         }
 
         public override void MapViewRegionDidChange(MGLMapView mapView, bool animated)
-        {                      
+        {
             MapControl.Center = new Position(mapView.CenterCoordinate.Latitude, mapView.CenterCoordinate.Longitude);
+        }
+
+        public override void MapViewDidUpdateUserLocation(MGLMapView mapView, MGLUserLocation userLocation)
+        {
+            if (MapControl.LastKnownUserPosition == null)
+            {
+                MapController.OnUserLocationFound(new Position(userLocation.Coordinate.Latitude, userLocation.Coordinate.Longitude));
+            }
+
+            MapControl.LastKnownUserPosition = new Position(userLocation.Coordinate.Latitude, userLocation.Coordinate.Longitude);
         }
     }
 }
