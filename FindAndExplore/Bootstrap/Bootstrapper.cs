@@ -157,7 +157,7 @@ namespace FindAndExplore.Bootstrap
             Locator.SetLocator(resolver);
 
             // Make sure you set the application name before doing any inserts or gets
-            Akavache.Registrations.Start("MapboxForms");
+            Akavache.Registrations.Start("FindAndExplore");
         }
     }
 }

@@ -1,5 +1,7 @@
 
 using System;
+using System.Reactive;
+using System.Reactive.Linq;
 using Android.App;
 using Android.Graphics;
 using Android.OS;
@@ -28,6 +30,7 @@ namespace FindAndExplore.Droid
                                 IOnMapReadyCallback,
                                 Style.IOnStyleLoaded,
                                 IOnSymbolClickListener,
+                                MapboxMap.IOnMapClickListener,
                                 MapboxMap.IOnCameraMoveListener,
                                 MapboxMap.IOnFlingListener
     {
@@ -84,6 +87,13 @@ namespace FindAndExplore.Droid
             
             _mapboxMap.AddOnCameraMoveListener(this);
             _mapboxMap.AddOnFlingListener(this);
+            _mapboxMap.AddOnMapClickListener(this);
+            
+            var move = Observable.FromEventPattern<MapView.StyleImageMissingEventArgs>(_mapView, "StyleImageMissing");
+            move.Subscribe(evt =>
+            {
+                _mapControl.StyleImageMissing?.Execute();
+            });
         }
 
         private void OnPointsOfInterestChanged(GeoJSON.Net.Feature.FeatureCollection featureCollection)
@@ -125,6 +135,12 @@ namespace FindAndExplore.Droid
             _symbolManager.AddClickListener(this);
             */
 
+            var mapStyle = new MapStyle
+            {
+                UrlString = style.Uri
+            };
+            _mapControl.DidFinishLoadingStyle?.Execute(mapStyle);
+            
             // Have to set starting point on Android so setting way up high
             var position = new CameraPosition.Builder()
                 .Target(new LatLng(51.137506, -3.008960))
@@ -132,8 +148,8 @@ namespace FindAndExplore.Droid
                 .Build();
 
             _mapboxMap.MoveCamera(CameraUpdateFactory.NewCameraPosition(position));
-
-            ViewModel.OnMapLoaded().ConfigureAwait(false);
+            
+            _mapControl.DidFinishLoading?.Execute();
         }
         
         private void SetUpPOIImage()
@@ -279,6 +295,13 @@ namespace FindAndExplore.Droid
 
         }
 
+        public bool OnMapClick(LatLng clickPosition)
+        {
+            _mapControl.DidTapOnMap?.Execute(new Position(clickPosition.Latitude, clickPosition.Longitude));
+
+            return true;
+        }
+        
         public override void OnStart()
         {
             base.OnStart();
@@ -313,6 +336,6 @@ namespace FindAndExplore.Droid
         {
             base.OnLowMemory();
             _mapView.OnLowMemory();
-        }        
+        }
     }
 }

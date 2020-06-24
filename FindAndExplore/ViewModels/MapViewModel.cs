@@ -20,7 +20,6 @@ using GeoJSON.Net.Feature;
 using GeoJSON.Net.Geometry;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
-using AsyncLock = FindAndExplore.Threading.AsyncLock;
 
 namespace FindAndExplore.ViewModels
 {
@@ -49,8 +48,6 @@ namespace FindAndExplore.ViewModels
         readonly IFindAndExploreQuery _findAndExploreQuery;
         readonly IFoursquareQuery _foursquareQuery;
         readonly ISchedulerProvider _schedulerProvider;
-
-        readonly AsyncLock Mutex = new AsyncLock();
         
         ReadOnlyObservableCollection<PointOfInterest> _pointsOfInterest;
 
@@ -161,10 +158,29 @@ namespace FindAndExplore.ViewModels
                     (a, b, c, d) => a || b || c || d));
 
             this.WhenAnyValue(x => x._mapControl.Center)
-                .ObserveOn(schedulerProvider.ThreadPool)
                 .Throttle(TimeSpan.FromSeconds(0.2), schedulerProvider.ThreadPool)
+                .DistinctUntilChanged()
+                .ObserveOn(schedulerProvider.ThreadPool)
                 .InvokeCommand(MapCenterLocationChanged);
-                
+
+            _mapControl.DidFinishLoadingStyle = ReactiveCommand.CreateFromTask<MapStyle, Unit>
+            ( 
+                OnMapStyleLoaded,
+                outputScheduler: schedulerProvider.ThreadPool);
+            //_mapControl.DidFinishLoadingStyle.ThrownExceptions.Subscribe(errorReporter.TrackError);
+            
+            _mapControl.DidFinishLoading = ReactiveCommand.CreateFromTask<Unit, Unit>
+            ( 
+                _ => OnMapLoaded(),
+                outputScheduler: schedulerProvider.ThreadPool);
+            //_mapControl.DidFinishLoading.ThrownExceptions.Subscribe(errorReporter.TrackError);
+            
+            _mapControl.DidTapOnMap = ReactiveCommand.CreateFromTask<Position, Unit>
+            ( 
+                OnMapTapped,
+                outputScheduler: schedulerProvider.ThreadPool);
+            //_mapControl.DidTapOnMap.ThrownExceptions.Subscribe(errorReporter.TrackError);
+            
             _ = _pointsOfInterestCache.Connect()
                 .Bind(out _pointsOfInterest)
                 .ObserveOn(schedulerProvider.MainThread)        //ensure operation is on the UI thread;
@@ -208,8 +224,12 @@ namespace FindAndExplore.ViewModels
             return Unit.Default;
         }     
         
-
-        public async Task OnMapLoaded()
+        private async Task<Unit> OnMapStyleLoaded(MapStyle mapStyle)
+        {
+            return Unit.Default;
+        }
+        
+        private async Task<Unit> OnMapLoaded()
         {
             PopupPresenter.ProgressAnimationCompleted += ProgressAnimationCompletedAsync;
 
@@ -221,8 +241,15 @@ namespace FindAndExplore.ViewModels
 
             // Success animation
             PopupPresenter?.UpdateProgress("Ah ha, I found you!", AnimationKeySuccess);
+            
+            return Unit.Default;
         }
 
+        private async  Task<Unit> OnMapTapped(Position tapPosition)
+        {
+            return Unit.Default;
+        }
+        
         string GetGeoHash()
         {
             //https://github.com/postlagerkarte/geohash-dotnet
