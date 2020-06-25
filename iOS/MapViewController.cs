@@ -249,17 +249,6 @@ namespace FindAndExplore.iOS
                 _venuesSource.Shape = shape;
             }
         }
-
-        private void OnUserLocationChanged(Position position)
-        {
-            if (position != null)
-            {
-                var camera = new MGLMapCamera();
-                camera.CenterCoordinate = new CLLocationCoordinate2D(position.Latitude, position.Longitude);
-                camera.Altitude = 30000;
-                _mapView.SetCamera(camera, 2.0, CAMediaTimingFunction.FromName(CAMediaTimingFunction.EaseIn));
-            }
-        }
         
         private void SetupMapGestureRecognizers()
         {
