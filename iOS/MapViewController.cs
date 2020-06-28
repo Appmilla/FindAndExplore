@@ -5,6 +5,7 @@ using CoreAnimation;
 using CoreGraphics;
 using CoreLocation;
 using FindAndExplore.Extensions;
+using FindAndExplore.iOS.Mapping;
 using FindAndExplore.iOS.Presentation;
 using FindAndExplore.Mapping;
 using FindAndExplore.Presentation;
@@ -39,6 +40,7 @@ namespace FindAndExplore.iOS
         static string VENUE_MARKER_LAYER_ID = "VENUE_MARKER_LAYER_ID";
 
         readonly IMapControl _mapControl;
+        readonly IMapLayerController _mapLayerController;
         
         private MGLMapView _mapView;
 
@@ -50,6 +52,7 @@ namespace FindAndExplore.iOS
         public MapViewController (IntPtr handle) : base (handle)
         {
             _mapControl = ServiceLocator.Current.GetInstance<IMapControl>();
+            _mapLayerController = ServiceLocator.Current.GetInstance<IMapLayerController>();
             ViewModel = ServiceLocator.Current.GetInstance<MapViewModel>();
         }
 
@@ -129,6 +132,8 @@ namespace FindAndExplore.iOS
         public void OnStyleLoaded(MGLStyle style)
         {
             _style = style;
+            ((MapLayerController) _mapLayerController).MapStyle = _style;
+            
             _mapView.ShowsUserLocation = true;
             
             this.WhenAnyValue(x => x.ViewModel.PointOfInterestFeatures).Subscribe(OnPointsOfInterestChanged);

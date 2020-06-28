@@ -15,7 +15,9 @@ using Appmilla.RestApiClient.Logging;
 using Appmilla.RestApiClient.Logging.Interfaces;
 using FindAndExplore.AppEvents;
 using FindAndExplore.Configuration;
+using FindAndExplore.DatasetProviders;
 using FindAndExplore.Http;
+using FindAndExplore.Infrastructure;
 using FindAndExplore.Mapping;
 using FindAndExplore.Queries;
 using FindAndExplore.Reactive;
@@ -78,6 +80,7 @@ namespace FindAndExplore.Bootstrap
             var taskPoolScheduler = TaskPoolScheduler.Default;
             builder.RegisterInstance<IScheduler>(taskPoolScheduler).Named<IScheduler>("Taskpool");
 
+            builder.RegisterType<ErrorReporter>().As<IErrorReporter>();
             builder.RegisterType<AppConfiguration>().As<IAppConfiguration>();
             builder.RegisterType<SchedulerProvider>().As<ISchedulerProvider>().SingleInstance();
             builder.RegisterType<FindAndExploreHttpClientFactory>().As<IFindAndExploreHttpClientFactory>().SingleInstance();
@@ -134,6 +137,8 @@ namespace FindAndExplore.Bootstrap
                     schedulerProvider);
 
             }).As<IFoursquareQuery>().SingleInstance();
+            
+            builder.RegisterType<FoursquareDatasetProvider>().As<IFoursquareDatasetProvider>().SingleInstance();
             
             //builder.RegisterType<AlertsCache>().As<IAlertsCache>().SingleInstance();           
             builder.RegisterType<ApplicationLifecycleObserver>().As<IApplicationLifecycleObserver>().SingleInstance();

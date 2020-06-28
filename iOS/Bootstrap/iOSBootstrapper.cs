@@ -6,6 +6,8 @@ using Splat;
 using FindAndExplore.iOS.Http;
 using FindAndExplore.Bootstrap;
 using FindAndExplore.Http;
+using FindAndExplore.iOS.Mapping;
+using FindAndExplore.Mapping;
 
 namespace FindAndExplore.iOS.Bootstrap
 {
@@ -20,6 +22,8 @@ namespace FindAndExplore.iOS.Bootstrap
             var messageHandlerFactory = new MessageHandlerFactory();
             builder.Register(c => messageHandlerFactory).As<IMessageHandlerFactory>().SingleInstance();
 
+            builder.RegisterType<MapLayerController>().As<IMapLayerController>().SingleInstance();
+            
             Bootstrapper.Bootstrap(builder);
 
             //build the container

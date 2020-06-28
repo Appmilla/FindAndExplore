@@ -143,6 +143,12 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
+    <Compile Include="Mapping\ExpressionExtensions.cs" />
+    <Compile Include="Mapping\GeoJsonOptionsExtensions.cs" />
+    <Compile Include="Mapping\LayerExtensions.cs" />
+    <Compile Include="Mapping\MapLayerController.cs" />
+    <Compile Include="Mapping\SourceExtensions.cs" />
+    <Compile Include="Mapping\XObjC.cs" />
     <Compile Include="Navigation\NavigationViewController.cs" />
     <Compile Include="MapViewController.cs" />
     <Compile Include="MapViewController.designer.cs">
