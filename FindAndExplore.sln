@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FindAndExplore.iOS", "iOS\F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FindAndExplore", "FindAndExplore\FindAndExplore.csproj", "{8E55E1CD-1801-4B3A-B001-06DFA2E18759}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FindAndExplore.Tests", "FindAndExplore.Tests\FindAndExplore.Tests.csproj", "{CA36A200-A10F-44F0-8D3D-0C3BCB696693}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,18 @@ Global
 		{8E55E1CD-1801-4B3A-B001-06DFA2E18759}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 		{8E55E1CD-1801-4B3A-B001-06DFA2E18759}.Debug|iPhone.ActiveCfg = Debug|Any CPU
 		{8E55E1CD-1801-4B3A-B001-06DFA2E18759}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{CA36A200-A10F-44F0-8D3D-0C3BCB696693}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA36A200-A10F-44F0-8D3D-0C3BCB696693}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA36A200-A10F-44F0-8D3D-0C3BCB696693}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA36A200-A10F-44F0-8D3D-0C3BCB696693}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA36A200-A10F-44F0-8D3D-0C3BCB696693}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{CA36A200-A10F-44F0-8D3D-0C3BCB696693}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{CA36A200-A10F-44F0-8D3D-0C3BCB696693}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{CA36A200-A10F-44F0-8D3D-0C3BCB696693}.Release|iPhone.Build.0 = Release|Any CPU
+		{CA36A200-A10F-44F0-8D3D-0C3BCB696693}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{CA36A200-A10F-44F0-8D3D-0C3BCB696693}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{CA36A200-A10F-44F0-8D3D-0C3BCB696693}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{CA36A200-A10F-44F0-8D3D-0C3BCB696693}.Debug|iPhone.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

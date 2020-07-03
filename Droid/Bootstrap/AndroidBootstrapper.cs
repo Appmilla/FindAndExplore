@@ -3,7 +3,9 @@ using Autofac.Extras.CommonServiceLocator;
 using CommonServiceLocator;
 using FindAndExplore.Bootstrap;
 using FindAndExplore.Droid.Http;
+using FindAndExplore.Droid.Mapping;
 using FindAndExplore.Http;
+using FindAndExplore.Mapping;
 
 namespace FindAndExplore.Droid.Bootstrap
 {
@@ -17,7 +19,9 @@ namespace FindAndExplore.Droid.Bootstrap
 
             var messageHandlerFactory = new MessageHandlerFactory();
             builder.Register(c => messageHandlerFactory).As<IMessageHandlerFactory>().SingleInstance();
-
+            
+            builder.RegisterType<MapLayerController>().As<IMapLayerController>().SingleInstance();
+            
             Bootstrapper.Bootstrap(builder);
 
             // build the container

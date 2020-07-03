@@ -5,10 +5,13 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using DynamicData;
+using FindAndExplore.DatasetProviders;
 using FindAndExplore.DynamicData;
 using FindAndExplore.Extensions;
+using FindAndExplore.Infrastructure;
 using FindAndExplore.Mapping;
 using FindAndExplore.Presentation;
 using FindAndExplore.Queries;
@@ -25,8 +28,6 @@ namespace FindAndExplore.ViewModels
 {
     public class MapViewModel : BaseViewModel
     {
-        private const int Venues_Radius = 5000;
-
         //public const string AnimationKeySuccess = "Success";
         //public const string AnimationKeySpinningCircle = "PulsingCircle";
 
@@ -43,11 +44,16 @@ namespace FindAndExplore.ViewModels
         //};
 
         //public string AnimationJson => "LocationOrangeCircle.json";
-
+        
         readonly IMapControl _mapControl;
         readonly IFindAndExploreQuery _findAndExploreQuery;
-        readonly IFoursquareQuery _foursquareQuery;
         readonly ISchedulerProvider _schedulerProvider;
+        readonly IErrorReporter _errorReporter;
+        readonly IFoursquareDatasetProvider _foursquareDatasetProvider;
+        
+        readonly Subject<Position> _sourceMapCenter = new Subject<Position>();
+        
+        bool _foursquareLayerInitialised;
         
         ReadOnlyObservableCollection<PointOfInterest> _pointsOfInterest;
 
@@ -57,12 +63,12 @@ namespace FindAndExplore.ViewModels
             set => this.RaiseAndSetIfChanged(ref _pointsOfInterest, value);
         }
 
-        ReadOnlyObservableCollection<Venue> _venues;
+        ReadOnlyObservableCollection<PlaceViewModel> _places;
 
-        public ReadOnlyObservableCollection<Venue> Venues
+        public ReadOnlyObservableCollection<PlaceViewModel> Places
         {
-            get => _venues;
-            set => this.RaiseAndSetIfChanged(ref _venues, value);
+            get => _places;
+            set => this.RaiseAndSetIfChanged(ref _places, value);
         }
 
         [ObservableAsProperty]
@@ -72,50 +78,49 @@ namespace FindAndExplore.ViewModels
         private static readonly Func<PointOfInterest, string> PointsOfInterestKeySelector = point => point.Id;
         readonly SourceCache<PointOfInterest, string> _pointsOfInterestCache = new SourceCache<PointOfInterest, string>(PointsOfInterestKeySelector);
 
-        private static readonly Func<Venue, string> VenueKeySelector = venue => venue.Id;
-        readonly SourceCache<Venue, string> _venuesCache = new SourceCache<Venue, string>(VenueKeySelector);
-
         [Reactive]
         public FeatureCollection PointOfInterestFeatures { get; set; }
 
-        [Reactive]
-        public FeatureCollection VenueFeatures { get; set; }
+        [ObservableAsProperty]
+        public FeatureCollection VenueFeatures { get; }
 
         public ReactiveCommand<Position, Unit> MapCenterLocationChanged { get; }
         
         public ReactiveCommand<Unit, ICollection<PointOfInterest>> LoadPointsOfInterest { get; }
 
         public ReactiveCommand<Unit, ICollection<PointOfInterest>> RefreshPointsOfInterest { get; }
-
-        public ReactiveCommand<Unit, ICollection<Venue>> LoadVenues { get; }
-
-        public ReactiveCommand<Unit, ICollection<Venue>> RefreshVenues { get; }
-
+        
         public ReactiveCommand<Unit, Unit> CancelInFlightQueries { get; }
 
         Geohasher _geohasher = new Geohasher();
 
         SupportedArea CurrentArea { get; set; }
-
+        
         public MapViewModel(
             IMapControl mapControl,
             IFindAndExploreQuery findAndExploreQuery,
-            IFoursquareQuery foursquareQuery,
-            ISchedulerProvider schedulerProvider)
+            ISchedulerProvider schedulerProvider,
+            IErrorReporter errorReporter,
+            IFoursquareDatasetProvider foursquareDatasetProvider)
         {
             _mapControl = mapControl;
             _findAndExploreQuery = findAndExploreQuery;
-            _foursquareQuery = foursquareQuery;
-            _schedulerProvider = schedulerProvider;            
+            _schedulerProvider = schedulerProvider;
+            _errorReporter = errorReporter;
+            _foursquareDatasetProvider = foursquareDatasetProvider;
             
             this.WhenAnyValue(x => x._findAndExploreQuery.IsBusy)
                 .ObserveOn(schedulerProvider.MainThread)
                 .ToPropertyEx(this, x => x.IsBusy, scheduler: _schedulerProvider.MainThread);
             
+            this.WhenAnyValue(x => x._foursquareDatasetProvider.Features)
+                .ObserveOn(schedulerProvider.MainThread)
+                .ToPropertyEx(this, x => x.VenueFeatures, scheduler: _schedulerProvider.MainThread);
+            
             MapCenterLocationChanged = ReactiveCommand.CreateFromTask<Position, Unit>
                 ( _ => OnMapCenterLocationChanged(),
                 outputScheduler: schedulerProvider.ThreadPool);
-            //MapCenterLocationChanged.ThrownExceptions.Subscribe(errorReporter.TrackError);
+            MapCenterLocationChanged.ThrownExceptions.Subscribe(errorReporter.TrackError);
             
             LoadPointsOfInterest = ReactiveCommand.CreateFromObservable(
                 () => _findAndExploreQuery.GetPointsOfInterest(CurrentArea.LocationId, GetCacheKey()).TakeUntil(CancelInFlightQueries),
@@ -131,27 +136,15 @@ namespace FindAndExplore.ViewModels
             RefreshPointsOfInterest.ThrownExceptions.Subscribe(PointsOfInterest_OnError);
             RefreshPointsOfInterest.Subscribe(PointsOfInterest_OnNext);
 
-            LoadVenues = ReactiveCommand.CreateFromObservable(
-                () => _foursquareQuery.GetVenues(_mapControl.Center.Latitude, _mapControl.Center.Longitude, Venues_Radius, GetCacheKey()).TakeUntil(CancelInFlightQueries),
-                this.WhenAnyValue(x => x.IsBusy).Select(x => !x),
-                outputScheduler: _schedulerProvider.ThreadPool);
-            LoadVenues.ThrownExceptions.Subscribe(Venues_OnError);
-            LoadVenues.Subscribe(Venues_OnNext);
-
-            RefreshVenues = ReactiveCommand.CreateFromObservable(
-                () => _foursquareQuery.RefreshVenues(_mapControl.Center.Latitude, _mapControl.Center.Longitude, Venues_Radius, GetCacheKey()).TakeUntil(CancelInFlightQueries),
-                this.WhenAnyValue(x => x.IsBusy).Select(x => !x),
-                outputScheduler: _schedulerProvider.ThreadPool);
-            RefreshVenues.ThrownExceptions.Subscribe(Venues_OnError);
-            RefreshVenues.Subscribe(Venues_OnNext);
+            _sourceMapCenter.InvokeCommand(_foursquareDatasetProvider.Refresh);
 
             CancelInFlightQueries = ReactiveCommand.Create(
                 () => { },
                 this.WhenAnyObservable(
                     a => a.LoadPointsOfInterest.IsExecuting,
                     b => b.RefreshPointsOfInterest.IsExecuting,
-                    c => c.LoadVenues.IsExecuting,
-                    d => d.RefreshVenues.IsExecuting,
+                    c => c._foursquareDatasetProvider.Load.IsExecuting,
+                    d => d._foursquareDatasetProvider.Refresh.IsExecuting,
                     (a, b, c, d) => a || b || c || d));
 
             this.WhenAnyValue(x => x._mapControl.Center)
@@ -164,19 +157,19 @@ namespace FindAndExplore.ViewModels
             ( 
                 OnMapStyleLoaded,
                 outputScheduler: schedulerProvider.ThreadPool);
-            //_mapControl.DidFinishLoadingStyle.ThrownExceptions.Subscribe(errorReporter.TrackError);
+            _mapControl.DidFinishLoadingStyle.ThrownExceptions.Subscribe(errorReporter.TrackError);
             
             _mapControl.DidFinishLoading = ReactiveCommand.CreateFromTask<Unit, Unit>
             ( 
                 _ => OnMapLoaded(),
                 outputScheduler: schedulerProvider.ThreadPool);
-            //_mapControl.DidFinishLoading.ThrownExceptions.Subscribe(errorReporter.TrackError);
+            _mapControl.DidFinishLoading.ThrownExceptions.Subscribe(errorReporter.TrackError);
             
             _mapControl.DidTapOnMap = ReactiveCommand.CreateFromTask<Position, Unit>
             ( 
                 OnMapTapped,
                 outputScheduler: schedulerProvider.ThreadPool);
-            //_mapControl.DidTapOnMap.ThrownExceptions.Subscribe(errorReporter.TrackError);
+            _mapControl.DidTapOnMap.ThrownExceptions.Subscribe(errorReporter.TrackError);
             
             _ = _pointsOfInterestCache.Connect()
                 .Bind(out _pointsOfInterest)
@@ -184,8 +177,8 @@ namespace FindAndExplore.ViewModels
                 .DisposeMany()                              //automatic disposal
                 .Subscribe();
 
-            _ = _venuesCache.Connect()
-                .Bind(out _venues)
+            _ = _foursquareDatasetProvider.ViewModelCache.Connect()
+                .Bind(out _places)
                 .ObserveOn(schedulerProvider.MainThread)        //ensure operation is on the UI thread;
                 .DisposeMany()                              //automatic disposal
                 .Subscribe();
@@ -201,8 +194,9 @@ namespace FindAndExplore.ViewModels
 
             try
             {
-                Observable.Return(Unit.Default).InvokeCommand(RefreshVenues);
-
+                //_foursquareDatasetProvider.Refresh.Execute(_mapControl.Center).Subscribe();
+                _sourceMapCenter.OnNext(_mapControl.Center);
+               
                 var area = await GetCurrentArea();
                 if (area != null)
                 {
@@ -216,6 +210,7 @@ namespace FindAndExplore.ViewModels
             }
             catch (Exception exception)
             {
+                _errorReporter.TrackError(exception);
             }            
 
             return Unit.Default;
@@ -228,6 +223,13 @@ namespace FindAndExplore.ViewModels
         
         private async Task<Unit> OnMapLoaded()
         {
+            if (!_foursquareLayerInitialised)
+            {
+                //TODO see if we can call this with the InvokeCommand syntax
+                _foursquareDatasetProvider.Load.Execute(_mapControl.LastKnownUserPosition).Subscribe();
+                _foursquareLayerInitialised = true;
+            }
+            
             return Unit.Default;
         }
 
@@ -280,36 +282,9 @@ namespace FindAndExplore.ViewModels
             });
         }
 
-        void PointsOfInterest_OnError(Exception e)
+        void PointsOfInterest_OnError(Exception exception)
         {
-
-        }
-
-        private void Venues_OnNext(ICollection<Venue> venues)
-        {
-            try
-            {
-                UpdateVenues(venues);
-            }
-            catch (Exception exception)
-            {
-                Venues_OnError(exception);
-            }
-        }
-
-        void UpdateVenues(ICollection<Venue> venues)
-        {
-            var venuesFeatureCollection = venues.ToFeatureCollection();
-            
-            _schedulerProvider.MainThread.Schedule(_ =>
-            {
-                VenueFeatures = venuesFeatureCollection;
-                _venuesCache.UpdateCache(venues, VenueKeySelector);
-            });
-        }
-
-        private void Venues_OnError(Exception obj)
-        {            
+            _errorReporter.TrackError(exception);
         }
 
         async Task<SupportedArea> GetCurrentArea()

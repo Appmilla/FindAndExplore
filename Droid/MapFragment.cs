@@ -18,6 +18,7 @@ using Com.Mapbox.Mapboxsdk.Style.Sources;
 using CommonServiceLocator;
 using DynamicData;
 using DynamicData.Binding;
+using FindAndExplore.Droid.Mapping;
 using FindAndExplore.Droid.Presentation;
 using FindAndExplore.Extensions;
 using FindAndExplore.Mapping;
@@ -45,6 +46,7 @@ namespace FindAndExplore.Droid
         static string VENUE_MARKER_LAYER_ID = "VENUE_MARKER_LAYER_ID";
 
         readonly IMapControl _mapControl;
+        readonly IMapLayerController _mapLayerController;
         
         MapView _mapView;
         MapboxMap _mapboxMap;
@@ -61,6 +63,7 @@ namespace FindAndExplore.Droid
         public MapFragment()
         {
             _mapControl = ServiceLocator.Current.GetInstance<IMapControl>();
+            _mapLayerController = ServiceLocator.Current.GetInstance<IMapLayerController>();
             ViewModel = ServiceLocator.Current.GetInstance<MapViewModel>();
         }
 
@@ -113,15 +116,18 @@ namespace FindAndExplore.Droid
         public void OnStyleLoaded(Style style)
         {
             _style = style;
+            ((MapLayerController) _mapLayerController).MapStyle = _style;
             
             SetUpPOIImage();
             SetUpPOIMarkerLayer();
 
+            /*
             SetUpVenuesImage();
             SetUpVenuesMarkerLayer();
+            */
 
             this.WhenAnyValue(x => x.ViewModel.PointOfInterestFeatures).Subscribe(OnPointsOfInterestChanged);
-            this.WhenAnyValue(x => x.ViewModel.VenueFeatures).Subscribe(OnVenuesChanged);
+            //this.WhenAnyValue(x => x.ViewModel.VenueFeatures).Subscribe(OnVenuesChanged);
 
             // Leave for now as we may want to add markers using Symbol Manager and this is a useful reference
             /*
