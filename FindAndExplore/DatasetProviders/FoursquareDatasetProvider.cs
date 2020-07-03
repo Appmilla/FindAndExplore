@@ -201,8 +201,9 @@ namespace FindAndExplore.DatasetProviders
             });
         }
 
-        private void Venues_OnError(Exception obj)
-        {            
+        private void Venues_OnError(Exception exception)
+        {    
+            _errorReporter.TrackError(exception);
         }
         
     }
