@@ -10,6 +10,12 @@ using ReactiveUI.Fody.Helpers;
 
 namespace FindAndExplore.DatasetProviders
 {
+    //TOOD I expect we will create a view model to represent each point of interest/place on the map
+    //We would then map the data returned from the various sources our Mongo/Foursquare/Facebook/Trip Advisor
+    //into this view model
+    //Dynamic Data supports combining caches so for the list of placs we can combine the cache from each DatasetProvider
+    //Currently we will have a layer on the map for each DatasetProvider, they could be turned on or off individually
+    //we might combine these into a single layer for places maybe, and another say for Events?
     public interface IDatasetProvider<TViewModel, TCollection, TKey> where TViewModel : class//, IReactiveObject
     {
         // ReSharper disable once UnassignedGetOnlyAutoProperty

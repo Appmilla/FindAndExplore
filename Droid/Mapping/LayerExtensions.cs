@@ -126,12 +126,13 @@ namespace FindAndExplore.Droid.Mapping
         {
             if (layer == null) { return null; }
 
+            
             var result = new SymbolLayer(layer.Id, layer.SourceId)
             {
                 //MinZoom = layer.MinZoom,
                 //MaxZoom = layer.MaxZoom
             };
-
+            
             UpdateLayer(result, layer);
 
             return result;
@@ -209,6 +210,10 @@ namespace FindAndExplore.Droid.Mapping
             if (layer.IconImage != null)
             {
                 properties.Add(PropertyFactory.IconImage(layer.IconImage.ToNative()));
+                
+                //this is a workaround
+                var image = layer.IconImage as ExpressionLiteral<string>;
+                properties.Add(PropertyFactory.IconImage(image.Value));
             }
 
             if (layer.IconKeepUpright != null)

@@ -121,11 +121,13 @@ namespace FindAndExplore.Droid
             SetUpPOIImage();
             SetUpPOIMarkerLayer();
 
+            /*
             SetUpVenuesImage();
             SetUpVenuesMarkerLayer();
+            */
 
             this.WhenAnyValue(x => x.ViewModel.PointOfInterestFeatures).Subscribe(OnPointsOfInterestChanged);
-            this.WhenAnyValue(x => x.ViewModel.VenueFeatures).Subscribe(OnVenuesChanged);
+            //this.WhenAnyValue(x => x.ViewModel.VenueFeatures).Subscribe(OnVenuesChanged);
 
             // Leave for now as we may want to add markers using Symbol Manager and this is a useful reference
             /*

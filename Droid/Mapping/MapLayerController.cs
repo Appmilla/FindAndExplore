@@ -1,4 +1,6 @@
 using System.Linq;
+using Android.App;
+using Android.Graphics;
 using Com.Mapbox.Geojson;
 using Com.Mapbox.Mapboxsdk.Maps;
 using Com.Mapbox.Mapboxsdk.Style.Sources;
@@ -146,6 +148,14 @@ namespace FindAndExplore.Droid.Mapping
         public StyleLayer[] GetLayers()
         {
             return MapStyle.Layers.Select(x => x.ToForms()).Where(x => x != null).ToArray();
+        }
+
+        public void AddImage(string imageId, string resourceId)
+        {
+            int resId = Application.Context.Resources.GetIdentifier(resourceId, "drawable", Application.Context.PackageName);
+            
+            var bitmap = BitmapFactory.DecodeResource(Application.Context.Resources, resId);
+            MapStyle.AddImage(imageId, bitmap);
         }
         
         /*

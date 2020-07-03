@@ -35,11 +35,12 @@ namespace FindAndExplore.Mapping.Expressions
             }
             return Value;
         }
-
+        
         public override object[] ToArray()
         {
             return new object[] { "literal", Value };
         }
+
         /**
          * Returns a string representation of the expression literal.
          *

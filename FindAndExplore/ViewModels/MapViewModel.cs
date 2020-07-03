@@ -53,6 +53,8 @@ namespace FindAndExplore.ViewModels
         
         readonly Subject<Position> _sourceMapCenter = new Subject<Position>();
         
+        bool _foursquareLayerInitialised;
+        
         ReadOnlyObservableCollection<PointOfInterest> _pointsOfInterest;
 
         public ReadOnlyObservableCollection<PointOfInterest> PointsOfInterest
@@ -194,7 +196,7 @@ namespace FindAndExplore.ViewModels
             {
                 //_foursquareDatasetProvider.Refresh.Execute(_mapControl.Center).Subscribe();
                 _sourceMapCenter.OnNext(_mapControl.Center);
-                
+               
                 var area = await GetCurrentArea();
                 if (area != null)
                 {
@@ -208,6 +210,7 @@ namespace FindAndExplore.ViewModels
             }
             catch (Exception exception)
             {
+                _errorReporter.TrackError(exception);
             }            
 
             return Unit.Default;
@@ -220,6 +223,13 @@ namespace FindAndExplore.ViewModels
         
         private async Task<Unit> OnMapLoaded()
         {
+            if (!_foursquareLayerInitialised)
+            {
+                //TODO see if we can call this with the InvokeCommand syntax
+                _foursquareDatasetProvider.Load.Execute(_mapControl.LastKnownUserPosition).Subscribe();
+                _foursquareLayerInitialised = true;
+            }
+            
             return Unit.Default;
         }
 
@@ -272,9 +282,9 @@ namespace FindAndExplore.ViewModels
             });
         }
 
-        void PointsOfInterest_OnError(Exception e)
+        void PointsOfInterest_OnError(Exception exception)
         {
-
+            _errorReporter.TrackError(exception);
         }
 
         async Task<SupportedArea> GetCurrentArea()

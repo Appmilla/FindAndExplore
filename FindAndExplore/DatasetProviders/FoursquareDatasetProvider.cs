@@ -7,6 +7,10 @@ using DynamicData;
 using FindAndExplore.DynamicData;
 using FindAndExplore.Extensions;
 using FindAndExplore.Infrastructure;
+using FindAndExplore.Mapping;
+using FindAndExplore.Mapping.Expressions;
+using FindAndExplore.Mapping.Layers;
+using FindAndExplore.Mapping.Sources;
 using FindAndExplore.Queries;
 using FindAndExplore.Reactive;
 using FoursquareApi.Client;
@@ -34,9 +38,16 @@ namespace FindAndExplore.DatasetProviders
     {
         private const int Venues_Radius = 5000;
         
+        private const string GEOJSON_VENUE_SOURCE_ID = "GEOJSON_VENUE_SOURCE_ID";
+        private const string BAR_MARKER_IMAGE_ID = "BAR_MARKER_IMAGE_ID";
+        private const string VENUE_MARKER_LAYER_ID = "VENUE_MARKER_LAYER_ID";
+        
         readonly IFoursquareQuery _foursquareQuery;
+        readonly IMapLayerController _mapLayerController;
         readonly ISchedulerProvider _schedulerProvider;
         readonly IErrorReporter _errorReporter;
+
+        private GeoJsonSource _venuesSource;
         
         Geohasher _geohasher = new Geohasher();
         
@@ -47,10 +58,12 @@ namespace FindAndExplore.DatasetProviders
         
         public FoursquareDatasetProvider(
             IFoursquareQuery foursquareQuery,
+            IMapLayerController mapLayerController,
             ISchedulerProvider schedulerProvider,
             IErrorReporter errorReporter)
         {
             _foursquareQuery = foursquareQuery;
+            _mapLayerController = mapLayerController;
             _schedulerProvider = schedulerProvider;
             _errorReporter = errorReporter;
             
@@ -61,14 +74,14 @@ namespace FindAndExplore.DatasetProviders
                 this.WhenAnyValue(x => x.IsBusy).Select(x => !x),
                 outputScheduler: _schedulerProvider.ThreadPool);
             Load.ThrownExceptions.Subscribe(Venues_OnError);
-            Load.Subscribe(Venues_OnNext);
+            Load.Subscribe(LoadVenues_OnNext);
             
             Refresh = ReactiveCommand.CreateFromObservable<Position, ICollection<Venue>>(
                 OnRefresh,
                 this.WhenAnyValue(x => x.IsBusy).Select(x => !x),
                 outputScheduler: _schedulerProvider.ThreadPool);
             Refresh.ThrownExceptions.Subscribe(Venues_OnError);
-            Refresh.Subscribe(Venues_OnNext);
+            Refresh.Subscribe(RefreshVenues_OnNext);
             
             
             CancelInFlightQueries = ReactiveCommand.Create(
@@ -109,7 +122,58 @@ namespace FindAndExplore.DatasetProviders
                 .TakeUntil(CancelInFlightQueries);
         }
 
-        private void Venues_OnNext(ICollection<Venue> venues)
+        private void LoadVenues_OnNext(ICollection<Venue> venues)
+        {
+            try
+            {
+                var venuesFeatureCollection = venues.ToFeatureCollection();
+                
+                _venuesSource = new GeoJsonSource(GEOJSON_VENUE_SOURCE_ID, venuesFeatureCollection);
+                
+                _schedulerProvider.MainThread.Schedule(_ =>
+                {
+                    _mapLayerController.AddSource(_venuesSource);
+                    
+                    SetUpVenuesImage();
+                    SetUpVenuesMarkerLayer();
+                    
+                    Features = venuesFeatureCollection;
+                    ViewModelCache.UpdateCache(venues, VenueKeySelector);
+                });
+            }
+            catch (Exception exception)
+            {
+                Venues_OnError(exception);
+            }
+        }
+        
+        private void SetUpVenuesImage()
+        {
+            _mapLayerController.AddImage(BAR_MARKER_IMAGE_ID, "local_bar");
+        }
+
+        private void SetUpVenuesMarkerLayer()
+        {
+            /*
+            _mapLayerController.AddLayer(new SymbolLayer(VENUE_MARKER_LAYER_ID, GEOJSON_VENUE_SOURCE_ID)
+            {
+                IconImage = BAR_MARKER_IMAGE_ID,
+                IconAllowOverlap = true,
+                IconIgnorePlacement = true,
+                IconOffset = (new float[] { 0f, -8f })
+            });
+            */
+            
+            _mapLayerController.AddLayer(new SymbolLayer(VENUE_MARKER_LAYER_ID, GEOJSON_VENUE_SOURCE_ID)
+            {
+                IconImage = Expression.Literal(BAR_MARKER_IMAGE_ID),
+                IconAllowOverlap = Expression.Literal(true),
+                IconIgnorePlacement = Expression.Literal(true),
+                IconOffset = Expression.Literal(new float[] { 0f, -8f })
+            });
+        }
+        
+        private void RefreshVenues_OnNext(ICollection<Venue> venues)
         {
             try
             {
@@ -127,6 +191,8 @@ namespace FindAndExplore.DatasetProviders
             
             _schedulerProvider.MainThread.Schedule(_ =>
             {
+                _mapLayerController.UpdateSource(GEOJSON_VENUE_SOURCE_ID, venuesFeatureCollection);
+                
                 Features = venuesFeatureCollection;
                 ViewModelCache.UpdateCache(venues, VenueKeySelector);
             });

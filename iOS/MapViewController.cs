@@ -137,7 +137,7 @@ namespace FindAndExplore.iOS
             _mapView.ShowsUserLocation = true;
             
             this.WhenAnyValue(x => x.ViewModel.PointOfInterestFeatures).Subscribe(OnPointsOfInterestChanged);
-            this.WhenAnyValue(x => x.ViewModel.VenueFeatures).Subscribe(OnVenuesChanged);
+            //this.WhenAnyValue(x => x.ViewModel.VenueFeatures).Subscribe(OnVenuesChanged);
         }
 
         public void OnMapLoaded()

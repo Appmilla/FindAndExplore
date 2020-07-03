@@ -195,7 +195,13 @@ namespace FindAndExplore.iOS.Mapping
         {
             return MapStyle.Layers.Select(x => x.ToForms()).Where(x => x != null).ToArray();
         }
+
+        public void AddImage(string imageId, string resourceId)
+        {
+            MapStyle.SetImage(UIImage.FromBundle(resourceId), imageId);
+        }
         
+
         /*
         public void UpdateLight(Light light)
         {
