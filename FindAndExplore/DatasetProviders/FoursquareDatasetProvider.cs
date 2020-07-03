@@ -13,6 +13,7 @@ using FindAndExplore.Mapping.Layers;
 using FindAndExplore.Mapping.Sources;
 using FindAndExplore.Queries;
 using FindAndExplore.Reactive;
+using FindAndExplore.ViewModels;
 using FoursquareApi.Client;
 using Geohash;
 using GeoJSON.Net.Feature;
@@ -30,11 +31,11 @@ namespace FindAndExplore.DatasetProviders
         ReactiveCommand<Position, ICollection<Venue>> Load { get; }
         ReactiveCommand<Position, ICollection<Venue>> Refresh { get; }
         ReactiveCommand<Unit, Unit> CancelInFlightQueries { get; }
-        SourceCache<Venue, String> ViewModelCache { get; }
+        SourceCache<PlaceViewModel, String> ViewModelCache { get; }
         FeatureCollection Features { get; }
     }
 
-    public class FoursquareDatasetProvider : DatasetProvider<Venue, ICollection<Venue>, string>, IFoursquareDatasetProvider
+    public class FoursquareDatasetProvider : DatasetProvider<PlaceViewModel, Venue, ICollection<Venue>, string>, IFoursquareDatasetProvider
     {
         private const int Venues_Radius = 5000;
         
@@ -51,7 +52,7 @@ namespace FindAndExplore.DatasetProviders
         
         Geohasher _geohasher = new Geohasher();
         
-        private static readonly Func<Venue, string> VenueKeySelector = venue => venue.Id;
+        private static readonly Func<PlaceViewModel, string> VenueKeySelector = venue => venue.Id;
         
         [Reactive]
         public FeatureCollection Features { get; set; }
@@ -67,7 +68,7 @@ namespace FindAndExplore.DatasetProviders
             _schedulerProvider = schedulerProvider;
             _errorReporter = errorReporter;
             
-            ViewModelCache = new SourceCache<Venue, string>(VenueKeySelector);
+            ViewModelCache = new SourceCache<PlaceViewModel, string>(VenueKeySelector);
 
             Load = ReactiveCommand.CreateFromObservable<Position, ICollection<Venue>>(
                 OnLoad,
@@ -138,7 +139,8 @@ namespace FindAndExplore.DatasetProviders
                     SetUpVenuesMarkerLayer();
                     
                     Features = venuesFeatureCollection;
-                    ViewModelCache.UpdateCache(venues, VenueKeySelector);
+                    var places = venues.ToPlaceCollection();
+                    ViewModelCache.UpdateCache(places, VenueKeySelector);
                 });
             }
             catch (Exception exception)
@@ -194,7 +196,8 @@ namespace FindAndExplore.DatasetProviders
                 _mapLayerController.UpdateSource(GEOJSON_VENUE_SOURCE_ID, venuesFeatureCollection);
                 
                 Features = venuesFeatureCollection;
-                ViewModelCache.UpdateCache(venues, VenueKeySelector);
+                var places = venues.ToPlaceCollection();
+                ViewModelCache.UpdateCache(places, VenueKeySelector);
             });
         }
 

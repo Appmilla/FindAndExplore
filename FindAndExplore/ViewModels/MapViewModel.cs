@@ -63,12 +63,12 @@ namespace FindAndExplore.ViewModels
             set => this.RaiseAndSetIfChanged(ref _pointsOfInterest, value);
         }
 
-        ReadOnlyObservableCollection<Venue> _venues;
+        ReadOnlyObservableCollection<PlaceViewModel> _places;
 
-        public ReadOnlyObservableCollection<Venue> Venues
+        public ReadOnlyObservableCollection<PlaceViewModel> Places
         {
-            get => _venues;
-            set => this.RaiseAndSetIfChanged(ref _venues, value);
+            get => _places;
+            set => this.RaiseAndSetIfChanged(ref _places, value);
         }
 
         [ObservableAsProperty]
@@ -178,7 +178,7 @@ namespace FindAndExplore.ViewModels
                 .Subscribe();
 
             _ = _foursquareDatasetProvider.ViewModelCache.Connect()
-                .Bind(out _venues)
+                .Bind(out _places)
                 .ObserveOn(schedulerProvider.MainThread)        //ensure operation is on the UI thread;
                 .DisposeMany()                              //automatic disposal
                 .Subscribe();

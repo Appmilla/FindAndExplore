@@ -16,7 +16,9 @@ namespace FindAndExplore.DatasetProviders
     //Dynamic Data supports combining caches so for the list of placs we can combine the cache from each DatasetProvider
     //Currently we will have a layer on the map for each DatasetProvider, they could be turned on or off individually
     //we might combine these into a single layer for places maybe, and another say for Events?
-    public interface IDatasetProvider<TViewModel, TCollection, TKey> where TViewModel : class//, IReactiveObject
+    public interface IDatasetProvider<TViewModel, TModel, TCollection, TKey>
+        where TModel : class
+        where TViewModel : class, IReactiveObject
     {
         // ReSharper disable once UnassignedGetOnlyAutoProperty
         bool IsBusy { get; }
@@ -29,9 +31,10 @@ namespace FindAndExplore.DatasetProviders
         FeatureCollection Features { get; }
     }
 
-    public class DatasetProvider<TViewModel, TCollection, TKey> : DatasetProvider, IDatasetProvider<TViewModel, TCollection, TKey>
-        where TViewModel : class//, IReactiveObject
-        where TCollection : ICollection<TViewModel>//, INotifyCollectionChanged
+    public class DatasetProvider<TViewModel, TModel, TCollection, TKey> : DatasetProvider, IDatasetProvider<TViewModel, TModel, TCollection, TKey>
+        where TModel : class
+        where TViewModel : class, IReactiveObject
+        where TCollection : ICollection<TModel>//, INotifyCollectionChanged
     {
         [ObservableAsProperty]
         // ReSharper disable once UnassignedGetOnlyAutoProperty
