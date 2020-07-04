@@ -25,7 +25,7 @@ namespace FindAndExplore.DatasetProviders
         ReactiveCommand<Position, TCollection> Load { get; }
         ReactiveCommand<Position, TCollection> Refresh { get; }
         ReactiveCommand<Unit, Unit> CancelInFlightQueries { get; }
-        SourceCache<TViewModel, TKey> ViewModelCache { get; set; }
+        SourceCache<TViewModel, TKey> ViewModelCache { get; }
         
         FeatureCollection Features { get; }
     }
@@ -47,7 +47,7 @@ namespace FindAndExplore.DatasetProviders
         public ReactiveCommand<Unit, Unit> CancelInFlightQueries { get; protected set; }
         
         //The SourceCache is shared and is set by the MapViewModel currently
-        public SourceCache<TViewModel, TKey> ViewModelCache { get; set; }
+        public SourceCache<TViewModel, TKey> ViewModelCache { get; protected set; }
         
         public FeatureCollection Features { get; protected set; }
         

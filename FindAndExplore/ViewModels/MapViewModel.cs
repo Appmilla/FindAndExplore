@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
@@ -8,6 +10,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using DynamicData;
+using DynamicData.Binding;
 using FindAndExplore.DatasetProviders;
 using FindAndExplore.DynamicData;
 using FindAndExplore.Extensions;
@@ -62,7 +65,7 @@ namespace FindAndExplore.ViewModels
             get => _places;
             set => this.RaiseAndSetIfChanged(ref _places, value);
         }
-
+        
         [ObservableAsProperty]
         // ReSharper disable once UnassignedGetOnlyAutoProperty
         public bool IsBusy { get; }
@@ -79,7 +82,7 @@ namespace FindAndExplore.ViewModels
         
         static readonly Func<PlaceViewModel, string> PlacesKeySelector = place => place.Id;
         
-        public SourceCache<PlaceViewModel, string> ViewModelCache { get; protected set; }
+        public SourceCache<PlaceViewModel, string> ViewModelCache { get; }
         
         public MapViewModel(
             IMapControl mapControl,
@@ -93,14 +96,12 @@ namespace FindAndExplore.ViewModels
             _errorReporter = errorReporter;
             _foursquareDatasetProvider = foursquareDatasetProvider;
             _findAndExploreDatasetProvider = findAndExploreDatasetProvider;
-            
-            //The DatasetProviders populate a shared cache in this viewmodel to power the
-            //various list views. Expect to move this cache to it's own object later
-            //See how this works when we get a UI to display the items, seems simpler than 
-            //combining multiple caches
+
             ViewModelCache = new SourceCache<PlaceViewModel, string>(PlacesKeySelector);
-            _foursquareDatasetProvider.ViewModelCache = ViewModelCache;
-            _findAndExploreDatasetProvider.ViewModelCache = ViewModelCache;
+            
+            // connect the various DatasetProvider ViewModelCaches to this combined cache
+            _ = _findAndExploreDatasetProvider.ViewModelCache.Connect().PopulateInto(ViewModelCache);
+            _ = _foursquareDatasetProvider.ViewModelCache.Connect().PopulateInto(ViewModelCache);
             
             this.WhenAnyValue(x => x._foursquareDatasetProvider.IsBusy, y => y._findAndExploreDatasetProvider.IsBusy, (x, y) => x || y)
                 .ObserveOn(schedulerProvider.MainThread)
@@ -160,8 +161,27 @@ namespace FindAndExplore.ViewModels
                 .ObserveOn(schedulerProvider.MainThread)        //ensure operation is on the UI thread;
                 .DisposeMany()                              //automatic disposal
                 .Subscribe();
+            
+            //un-comment the line below to take a look at the places view model cache
+            //_places.ObserveCollectionChanges().Subscribe(OnNext);
         }
-        
+
+        private void OnNext(EventPattern<NotifyCollectionChangedEventArgs> obj)
+        {
+            Debug.WriteLine($"Places updated, count = {_places.Count}");
+
+            var foursquarePlaces = _places.Where(p => p.Source == "Foursquare").ToList();
+            Debug.WriteLine($"Foursquare, count = {foursquarePlaces.Count}");
+            
+            var findAndExplorePlaces = _places.Where(p => p.Source == "Find And Explore MongoDB").ToList();
+            Debug.WriteLine($"Find And Explore, count = {findAndExplorePlaces.Count}");
+            
+            foreach (var place in _places)
+            {
+                Debug.WriteLine($"{place.Name}");
+            }
+        }
+
         private async Task<Unit> OnMapCenterLocationChanged()
         {           
             if (_mapControl.Center == null)
@@ -179,13 +199,6 @@ namespace FindAndExplore.ViewModels
                 else
                 {
                     _sourceMapCenter.OnNext(_mapControl.Center);
-                    
-                    //using Edit locks the Cache so the operations within it are threadsafe
-                    ViewModelCache.Edit(innerCache =>
-                    {
-                        ViewModelCache.Clear();
-                    });
-                    
                 }
             }
             catch (Exception exception)
@@ -200,7 +213,6 @@ namespace FindAndExplore.ViewModels
         {
             _datasetProvidersLoaded = true;
 
-            ViewModelCache.Clear();
             //TODO see if we can call this with the InvokeCommand syntax
             _foursquareDatasetProvider.Load.Execute(_mapControl.LastKnownUserPosition).Subscribe();
             _findAndExploreDatasetProvider.Load.Execute(_mapControl.LastKnownUserPosition).Subscribe();

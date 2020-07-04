@@ -70,5 +70,8 @@ namespace FindAndExplore.ViewModels
         
         [Reactive]
         public ICollection<CategoryViewModel> Categories { get; set; } = new List<CategoryViewModel>();
+        
+        [Reactive]
+        public string Source { get; set; }
     }
 }
