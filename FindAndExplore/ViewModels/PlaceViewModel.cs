@@ -9,7 +9,7 @@ namespace FindAndExplore.ViewModels
     public class LocationViewModel : ReactiveObject
     {
         [Reactive]
-        public Position Position { get; set; }
+        public Point Position { get; set; }
         
         [Reactive]
         public string Address { get; set; }

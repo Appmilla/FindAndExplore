@@ -13,7 +13,7 @@ using FindAndExplore.Mapping.Sources;
 using FindAndExplore.Queries;
 using FindAndExplore.Reactive;
 using FindAndExplore.ViewModels;
-using FoursquareApi.Client;
+using FindAndExploreApi.Client;
 using GeoJSON.Net.Feature;
 using GeoJSON.Net.Geometry;
 using ReactiveUI;
@@ -21,62 +21,60 @@ using ReactiveUI.Fody.Helpers;
 
 namespace FindAndExplore.DatasetProviders
 {
-    public interface IFoursquareDatasetProvider
+    public interface IFindAndExploreDatasetProvider
     {
         // ReSharper disable once UnassignedGetOnlyAutoProperty
         bool IsBusy { get; }
 
-        ReactiveCommand<Position, ICollection<Venue>> Load { get; }
-        ReactiveCommand<Position, ICollection<Venue>> Refresh { get; }
+        ReactiveCommand<Position, ICollection<PointOfInterest>> Load { get; }
+        ReactiveCommand<Position, ICollection<PointOfInterest>> Refresh { get; }
         ReactiveCommand<Unit, Unit> CancelInFlightQueries { get; }
         SourceCache<PlaceViewModel, String> ViewModelCache { get; set; }
         FeatureCollection Features { get; }
     }
 
-    public class FoursquareDatasetProvider : DatasetProvider<PlaceViewModel, Venue, ICollection<Venue>, string>, IFoursquareDatasetProvider
+    public class FindAndExploreDatasetProvider : DatasetProvider<PlaceViewModel, PointOfInterest, ICollection<PointOfInterest>, string>, IFindAndExploreDatasetProvider
     {
-        private const int Venues_Radius = 5000;
+        private const string GEOJSON_POI_SOURCE_ID = "GEOJSON_POI_SOURCE_ID";
+        private const string RED_MARKER_IMAGE_ID = "RED_MARKER_IMAGE_ID";
+        private const string POI_MARKER_LAYER_ID = "POI_MARKER_LAYER_ID";
         
-        private const string GEOJSON_VENUE_SOURCE_ID = "GEOJSON_VENUE_SOURCE_ID";
-        private const string BAR_MARKER_IMAGE_ID = "BAR_MARKER_IMAGE_ID";
-        private const string VENUE_MARKER_LAYER_ID = "VENUE_MARKER_LAYER_ID";
-        
-        readonly IFoursquareQuery _foursquareQuery;
+        readonly IFindAndExploreQuery _findAndExploreQuery;
         readonly IMapLayerController _mapLayerController;
         readonly ISchedulerProvider _schedulerProvider;
         readonly IErrorReporter _errorReporter;
 
-        private GeoJsonSource _venuesSource;
+        private GeoJsonSource _pointOfInterestSource;
        
-        private static readonly Func<PlaceViewModel, string> VenueKeySelector = venue => venue.Id;
+        static readonly Func<PlaceViewModel, string> PointOfInterestKeySelector = pointOfInterest => pointOfInterest.Id;
         
         [Reactive]
         public FeatureCollection Features { get; set; }
         
-        public FoursquareDatasetProvider(
-            IFoursquareQuery foursquareQuery,
+        public FindAndExploreDatasetProvider(
+            IFindAndExploreQuery findAndExploreQuery,
             IMapLayerController mapLayerController,
             ISchedulerProvider schedulerProvider,
             IErrorReporter errorReporter)
         {
-            _foursquareQuery = foursquareQuery;
+            _findAndExploreQuery = findAndExploreQuery;
             _mapLayerController = mapLayerController;
             _schedulerProvider = schedulerProvider;
             _errorReporter = errorReporter;
-          
-            Load = ReactiveCommand.CreateFromObservable<Position, ICollection<Venue>>(
+           
+            Load = ReactiveCommand.CreateFromObservable<Position, ICollection<PointOfInterest>>(
                 OnLoad,
                 this.WhenAnyValue(x => x.IsBusy).Select(x => !x),
                 outputScheduler: _schedulerProvider.ThreadPool);
-            Load.ThrownExceptions.Subscribe(Venues_OnError);
+            Load.ThrownExceptions.Subscribe(PointsOfInterest_OnError);
             Load.Subscribe(LoadVenues_OnNext);
             
-            Refresh = ReactiveCommand.CreateFromObservable<Position, ICollection<Venue>>(
+            Refresh = ReactiveCommand.CreateFromObservable<Position, ICollection<PointOfInterest>>(
                 OnRefresh,
                 this.WhenAnyValue(x => x.IsBusy).Select(x => !x),
                 outputScheduler: _schedulerProvider.ThreadPool);
-            Refresh.ThrownExceptions.Subscribe(Venues_OnError);
-            Refresh.Subscribe(RefreshVenues_OnNext);
+            Refresh.ThrownExceptions.Subscribe(PointsOfInterest_OnError);
+            Refresh.Subscribe(RefreshPointsOfInterest_OnNext);
             
             CancelInFlightQueries = ReactiveCommand.Create(
                 () => { },
@@ -86,42 +84,47 @@ namespace FindAndExplore.DatasetProviders
                     (l, r) => l || r));
         }
 
-        string GetCacheKey(Position centerPosition)
+        private IObservable<ICollection<PointOfInterest>> OnLoad(Position centerPosition)
         {
-            return $"{GetGeoHash(centerPosition, 6)}-find_and_explore/foursquare-venues";
-        }
-        
-        private IObservable<ICollection<Venue>> OnLoad(Position centerPosition)
-        {
-            return _foursquareQuery
-                .GetVenues(centerPosition.Latitude, centerPosition.Longitude, Venues_Radius, GetCacheKey(centerPosition))
+            return _findAndExploreQuery
+                .GetPointsOfInterest(centerPosition, GetCacheKey(centerPosition))
                 .TakeUntil(CancelInFlightQueries);
         }
         
-        private IObservable<ICollection<Venue>> OnRefresh(Position centerPosition)
+        private IObservable<ICollection<PointOfInterest>> OnRefresh(Position centerPosition)
         {
-            return _foursquareQuery
-                .RefreshVenues(centerPosition.Latitude, centerPosition.Longitude, Venues_Radius, GetCacheKey(centerPosition))
+            return _findAndExploreQuery
+                .RefreshPointsOfInterest(centerPosition, GetCacheKey(centerPosition))
                 .TakeUntil(CancelInFlightQueries);
         }
 
-        private void LoadVenues_OnNext(ICollection<Venue> venues)
+        string GetCacheKey(Position centerPosition)
+        {
+            return $"{GetGeoHash(centerPosition, 6)}-find_and_explore/points-of-interest";
+        }
+
+        string GetAreaCacheKey(Position centerPosition)
+        {
+            return $"{GetGeoHash(centerPosition, 6)}-find_and_explore/current-area";
+        }
+
+        private void LoadVenues_OnNext(ICollection<PointOfInterest> pointsOfInterest)
         {
             try
             {
-                var venuesFeatureCollection = venues.ToFeatureCollection();
+                var pointsOfInterestFeatureCollection = pointsOfInterest.ToFeatureCollection();
                 
-                _venuesSource = new GeoJsonSource(GEOJSON_VENUE_SOURCE_ID, venuesFeatureCollection);
+                _pointOfInterestSource = new GeoJsonSource(GEOJSON_POI_SOURCE_ID, pointsOfInterestFeatureCollection);
                 
                 _schedulerProvider.MainThread.Schedule(_ =>
                 {
-                    _mapLayerController.AddSource(_venuesSource);
+                    _mapLayerController.AddSource(_pointOfInterestSource);
                     
-                    SetUpVenuesImage();
-                    SetUpVenuesMarkerLayer();
+                    SetUpPOIImage();
+                    SetUpPOIMarkerLayer();
                     
-                    Features = venuesFeatureCollection;
-                    var places = venues.ToPlaceCollection();
+                    Features = pointsOfInterestFeatureCollection;
+                    var places = pointsOfInterest.ToPlaceCollection();
                     
                     //using Edit locks the Cache so the operations within it are threadsafe
                     ViewModelCache.Edit(innerCache =>
@@ -132,16 +135,16 @@ namespace FindAndExplore.DatasetProviders
             }
             catch (Exception exception)
             {
-                Venues_OnError(exception);
+                PointsOfInterest_OnError(exception);
             }
         }
         
-        private void SetUpVenuesImage()
+        private void SetUpPOIImage()
         {
-            _mapLayerController.AddImage(BAR_MARKER_IMAGE_ID, "local_bar");
+            _mapLayerController.AddImage(RED_MARKER_IMAGE_ID, "red_marker");
         }
 
-        private void SetUpVenuesMarkerLayer()
+        private void SetUpPOIMarkerLayer()
         {
             /*
             _mapLayerController.AddLayer(new SymbolLayer(VENUE_MARKER_LAYER_ID, GEOJSON_VENUE_SOURCE_ID)
@@ -153,37 +156,37 @@ namespace FindAndExplore.DatasetProviders
             });
             */
             
-            _mapLayerController.AddLayer(new SymbolLayer(VENUE_MARKER_LAYER_ID, GEOJSON_VENUE_SOURCE_ID)
+            _mapLayerController.AddLayer(new SymbolLayer(POI_MARKER_LAYER_ID, GEOJSON_POI_SOURCE_ID)
             {
-                IconImage = Expression.Literal(BAR_MARKER_IMAGE_ID),
+                IconImage = Expression.Literal(RED_MARKER_IMAGE_ID),
                 IconAllowOverlap = Expression.Literal(true),
                 IconIgnorePlacement = Expression.Literal(true),
                 IconOffset = Expression.Literal(new float[] { 0f, -8f })
             });
         }
         
-        private void RefreshVenues_OnNext(ICollection<Venue> venues)
+        private void RefreshPointsOfInterest_OnNext(ICollection<PointOfInterest> pointsOfInterest)
         {
             try
             {
-                UpdateVenues(venues);
+                UpdatePointsOfInterest(pointsOfInterest);
             }
             catch (Exception exception)
             {
-                Venues_OnError(exception);
+                PointsOfInterest_OnError(exception);
             }
         }
 
-        void UpdateVenues(ICollection<Venue> venues)
+        void UpdatePointsOfInterest(ICollection<PointOfInterest> pointsOfInterest)
         {
-            var venuesFeatureCollection = venues.ToFeatureCollection();
+            var pointsOfInterestFeatureCollection = pointsOfInterest.ToFeatureCollection();
             
             _schedulerProvider.MainThread.Schedule(_ =>
             {
-                _mapLayerController.UpdateSource(GEOJSON_VENUE_SOURCE_ID, venuesFeatureCollection);
+                _mapLayerController.UpdateSource(GEOJSON_POI_SOURCE_ID, pointsOfInterestFeatureCollection);
                 
-                Features = venuesFeatureCollection;
-                var places = venues.ToPlaceCollection();
+                Features = pointsOfInterestFeatureCollection;
+                var places = pointsOfInterest.ToPlaceCollection();
                 
                 //using Edit locks the Cache so the operations within it are threadsafe
                 ViewModelCache.Edit(innerCache =>
@@ -193,10 +196,11 @@ namespace FindAndExplore.DatasetProviders
             });
         }
 
-        private void Venues_OnError(Exception exception)
+        private void PointsOfInterest_OnError(Exception exception)
         {    
             _errorReporter.TrackError(exception);
         }
         
     }
+
 }

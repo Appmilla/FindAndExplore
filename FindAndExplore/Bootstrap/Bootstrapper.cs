@@ -139,7 +139,8 @@ namespace FindAndExplore.Bootstrap
             }).As<IFoursquareQuery>().SingleInstance();
             
             builder.RegisterType<FoursquareDatasetProvider>().As<IFoursquareDatasetProvider>().SingleInstance();
-            
+            builder.RegisterType<FindAndExploreDatasetProvider>().As<IFindAndExploreDatasetProvider>().SingleInstance();
+
             //builder.RegisterType<AlertsCache>().As<IAlertsCache>().SingleInstance();           
             builder.RegisterType<ApplicationLifecycleObserver>().As<IApplicationLifecycleObserver>().SingleInstance();
         }

@@ -118,15 +118,17 @@ namespace FindAndExplore.Droid
             _style = style;
             ((MapLayerController) _mapLayerController).MapStyle = _style;
             
+            /*
             SetUpPOIImage();
             SetUpPOIMarkerLayer();
-
+            */
+            
             /*
             SetUpVenuesImage();
             SetUpVenuesMarkerLayer();
             */
 
-            this.WhenAnyValue(x => x.ViewModel.PointOfInterestFeatures).Subscribe(OnPointsOfInterestChanged);
+            //this.WhenAnyValue(x => x.ViewModel.PointOfInterestFeatures).Subscribe(OnPointsOfInterestChanged);
             //this.WhenAnyValue(x => x.ViewModel.VenueFeatures).Subscribe(OnVenuesChanged);
 
             // Leave for now as we may want to add markers using Symbol Manager and this is a useful reference
@@ -173,6 +175,7 @@ namespace FindAndExplore.Droid
             _mapControl.DidFinishLoading?.Execute();
         }
         
+        /*
         private void SetUpPOIImage()
         {
             var bitmap = BitmapFactory.DecodeResource(Application.Context.Resources, Resource.Drawable.red_marker);
@@ -192,7 +195,7 @@ namespace FindAndExplore.Droid
 
             _style.AddLayer(symbolLayer);
         }
-
+        
         private void SetUpVenuesImage()
         {
             var bitmap = BitmapFactory.DecodeResource(Application.Context.Resources, Resource.Drawable.local_bar);
@@ -212,7 +215,8 @@ namespace FindAndExplore.Droid
 
             _style.AddLayer(symbolLayer);
         }
-
+        */
+        
         public void OnCameraMove()
         {            
             _mapControl.Center = new Position(_mapboxMap.CameraPosition.Target.Latitude, _mapboxMap.CameraPosition.Target.Longitude);
