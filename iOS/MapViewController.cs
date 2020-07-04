@@ -136,7 +136,7 @@ namespace FindAndExplore.iOS
             
             _mapView.ShowsUserLocation = true;
             
-            this.WhenAnyValue(x => x.ViewModel.PointOfInterestFeatures).Subscribe(OnPointsOfInterestChanged);
+            //this.WhenAnyValue(x => x.ViewModel.PointOfInterestFeatures).Subscribe(OnPointsOfInterestChanged);
             //this.WhenAnyValue(x => x.ViewModel.VenueFeatures).Subscribe(OnVenuesChanged);
         }
 
@@ -155,6 +155,7 @@ namespace FindAndExplore.iOS
             }
         }
 
+        /*
         private void OnPointsOfInterestChanged(GeoJSON.Net.Feature.FeatureCollection featureCollection)
         {
             UpdatePointsOfInterestGeoSource();
@@ -254,6 +255,7 @@ namespace FindAndExplore.iOS
                 _venuesSource.Shape = shape;
             }
         }
+        */
         
         private void SetupMapGestureRecognizers()
         {

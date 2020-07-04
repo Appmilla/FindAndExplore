@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Reactive;
-using System.Reactive.Linq;
 using DynamicData;
+using Geohash;
 using GeoJSON.Net.Feature;
 using GeoJSON.Net.Geometry;
 using ReactiveUI;
@@ -26,7 +25,7 @@ namespace FindAndExplore.DatasetProviders
         ReactiveCommand<Position, TCollection> Load { get; }
         ReactiveCommand<Position, TCollection> Refresh { get; }
         ReactiveCommand<Unit, Unit> CancelInFlightQueries { get; }
-        SourceCache<TViewModel, TKey> ViewModelCache { get; }
+        SourceCache<TViewModel, TKey> ViewModelCache { get; set; }
         
         FeatureCollection Features { get; }
     }
@@ -34,8 +33,10 @@ namespace FindAndExplore.DatasetProviders
     public class DatasetProvider<TViewModel, TModel, TCollection, TKey> : DatasetProvider, IDatasetProvider<TViewModel, TModel, TCollection, TKey>
         where TModel : class
         where TViewModel : class, IReactiveObject
-        where TCollection : ICollection<TModel>//, INotifyCollectionChanged
+        where TCollection : ICollection<TModel>
     {
+        protected Geohasher _geohasher = new Geohasher();
+        
         [ObservableAsProperty]
         // ReSharper disable once UnassignedGetOnlyAutoProperty
         public bool IsBusy { get; }
@@ -45,7 +46,8 @@ namespace FindAndExplore.DatasetProviders
         public ReactiveCommand<Position, TCollection> Refresh { get; protected set; }
         public ReactiveCommand<Unit, Unit> CancelInFlightQueries { get; protected set; }
         
-        public SourceCache<TViewModel, TKey> ViewModelCache { get; protected set; }
+        //The SourceCache is shared and is set by the MapViewModel currently
+        public SourceCache<TViewModel, TKey> ViewModelCache { get; set; }
         
         public FeatureCollection Features { get; protected set; }
         
@@ -53,9 +55,20 @@ namespace FindAndExplore.DatasetProviders
         {
             
         }
+        
+        protected string GetGeoHash(Position centerPosition, int precision)
+        {
+            //https://github.com/postlagerkarte/geohash-dotnet
+            //https://www.elastic.co/guide/en/elasticsearch/guide/current/geohashes.html#geohashes
+
+            //precision level 5 is approx 4.9km x 4.9km so as long as the current map centre is within that square then the previously cached data can be used
+            //precision level 6 is approx 1.2km x 0.61km 
+            var geoHash = _geohasher.Encode(centerPosition.Latitude, centerPosition.Longitude, precision);
+            return geoHash;
+        }
     }
     
-    public class DatasetProvider : ReactiveObject//, IDatasetProvider
+    public class DatasetProvider : ReactiveObject
     {
         
     }

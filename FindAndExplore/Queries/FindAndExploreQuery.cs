@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Akavache;
 using FindAndExplore.Http;
 using FindAndExplore.Reactive;
 using FindAndExploreApi.Client;
+using GeoJSON.Net.Geometry;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -18,11 +20,9 @@ namespace FindAndExplore.Queries
 
         Task<HealthCheckResult> HealthCheck();
 
-        Task<ICollection<SupportedArea>> GetCurrentArea(double lat, double lon, string cacheKey);
+        IObservable<ICollection<PointOfInterest>> GetPointsOfInterest(Position position, string cacheKey);
 
-        IObservable<ICollection<PointOfInterest>> GetPointsOfInterest(int locationId, string cacheKey);
-
-        IObservable<ICollection<PointOfInterest>> RefreshPointsOfInterest(int locationId, string cacheKey);
+        IObservable<ICollection<PointOfInterest>> RefreshPointsOfInterest(Position position, string cacheKey);
     }
 
     public class FindAndExploreQuery : ReactiveObject, IFindAndExploreQuery
@@ -37,6 +37,8 @@ namespace FindAndExplore.Queries
         [Reactive]
         public bool IsBusy { get; set; }
 
+        SupportedArea CurrentArea { get; set; }
+        
         public FindAndExploreQuery(IBlobCache blobCache,
             IFindAndExploreHttpClientFactory httpClientFactory,
             FindAndExploreApiClient findAndExploreApiClient,
@@ -57,31 +59,29 @@ namespace FindAndExplore.Queries
             return healthCheck;
         }
 
-        public async Task<ICollection<SupportedArea>> GetCurrentArea(double lat, double lon, string cacheKey)
+        async Task<ICollection<SupportedArea>> GetCurrentArea(double lat, double lon)
         {
-            var httpClient = _httpClientFactory.CreateClient();
-
             var areaResponse = await _findAndExploreApiClient.GetCurrentAreaAsync(lat, lon);
 
             return areaResponse;
         }
 
-        public IObservable<ICollection<PointOfInterest>> GetPointsOfInterest(int locationId, string cacheKey)
+        public IObservable<ICollection<PointOfInterest>> GetPointsOfInterest(Position position, string cacheKey)
         {
             DateTimeOffset? expiration = DateTimeOffset.Now + _cacheLifetime;
 
             return _blobCache.GetOrFetchObject(cacheKey,
-                    () => FetchPointsOfInterest(locationId),
+                    () => FetchPointsOfInterest(position),
                     expiration);
         }
         
-        public IObservable<ICollection<PointOfInterest>> RefreshPointsOfInterest(int locationId, string cacheKey)
+        public IObservable<ICollection<PointOfInterest>> RefreshPointsOfInterest(Position position, string cacheKey)
         {
             return Observable.Create<ICollection<PointOfInterest>>(async observer =>
             {
                 DateTimeOffset? expiration = DateTimeOffset.Now + _cacheLifetime;
 
-                var points = await FetchPointsOfInterest(locationId).ConfigureAwait(false);
+                var points = await FetchPointsOfInterest(position).ConfigureAwait(false);
 
                 await _blobCache.InsertObject(cacheKey, points, expiration);
 
@@ -90,16 +90,26 @@ namespace FindAndExplore.Queries
             }).SubscribeOn(_schedulerProvider.ThreadPool);
         }
 
-        async Task<ICollection<PointOfInterest>> FetchPointsOfInterest(int locationId)
+        async Task<ICollection<PointOfInterest>> FetchPointsOfInterest(Position position)
         {
             IsBusy = true;
 
             try
-            {                
+            {
                 var httpClient = _httpClientFactory.CreateClient();
                 
-                var points = await _findAndExploreApiClient.GetPointsOfInterestAsync(locationId);
+                //TODO maybe cache current area as we did previously
+                var points = new List<PointOfInterest>();
+                var supportedAreas = await GetCurrentArea(position.Latitude, position.Longitude);
 
+                if (supportedAreas.Any())
+                {
+                    foreach (var area in supportedAreas)
+                    {
+                        var areaPoints = await _findAndExploreApiClient.GetPointsOfInterestAsync(area.LocationId);
+                        points.AddRange(areaPoints);
+                    }
+                }
                 return points;
             }
             finally

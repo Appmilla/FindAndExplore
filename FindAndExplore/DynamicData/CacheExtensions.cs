@@ -18,19 +18,22 @@ namespace FindAndExplore.DynamicData
 
             if (keySelector == null) throw new ArgumentNullException(nameof(keySelector));
 
-            var cacheItems = updatedResults.ToList();
-            if (!cacheItems.Any()) return;
-
-            sourceCache.Edit(innerCache =>
+            lock (sourceCache)
             {
-                var updatedKeys = cacheItems.Select(keySelector);
+                var cacheItems = updatedResults.ToList();
+                if (!cacheItems.Any()) return;
 
-                var keysToRemove = innerCache.Keys.Where(key => !updatedKeys.Contains(key)).ToList();
+                sourceCache.Edit(innerCache =>
+                {
+                    var updatedKeys = cacheItems.Select(keySelector);
 
-                if (keysToRemove.Any()) innerCache.Remove(keysToRemove);
+                    var keysToRemove = innerCache.Keys.Where(key => !updatedKeys.Contains(key)).ToList();
 
-                innerCache.AddOrUpdate(cacheItems);
-            });
+                    if (keysToRemove.Any()) innerCache.Remove(keysToRemove);
+
+                    innerCache.AddOrUpdate(cacheItems);
+                });
+            }
         }
     }
 }

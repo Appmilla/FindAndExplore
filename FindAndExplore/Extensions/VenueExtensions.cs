@@ -48,7 +48,7 @@ namespace FindAndExplore.Extensions
                 Name =  value.Name,
                 Location = new LocationViewModel
                 {
-                    Position = locationPosition,
+                    Position = new Point(locationPosition),
                     Address = value.Location.Address,
                     City = value.Location.City,
                     State = value.Location.State,
