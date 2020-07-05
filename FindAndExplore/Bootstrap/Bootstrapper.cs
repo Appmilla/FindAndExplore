@@ -14,6 +14,7 @@ using Appmilla.RestApiClient;
 using Appmilla.RestApiClient.Logging;
 using Appmilla.RestApiClient.Logging.Interfaces;
 using FindAndExplore.AppEvents;
+using FindAndExplore.Caches;
 using FindAndExplore.Configuration;
 using FindAndExplore.DatasetProviders;
 using FindAndExplore.Http;
@@ -141,7 +142,7 @@ namespace FindAndExplore.Bootstrap
             builder.RegisterType<FoursquareDatasetProvider>().As<IFoursquareDatasetProvider>().SingleInstance();
             builder.RegisterType<FindAndExploreDatasetProvider>().As<IFindAndExploreDatasetProvider>().SingleInstance();
 
-            //builder.RegisterType<AlertsCache>().As<IAlertsCache>().SingleInstance();           
+            builder.RegisterType<PlacesCache>().As<IPlacesCache>().SingleInstance();           
             builder.RegisterType<ApplicationLifecycleObserver>().As<IApplicationLifecycleObserver>().SingleInstance();
         }
 
