@@ -98,7 +98,7 @@ namespace FindAndExplore.Mapping.Expressions
         }
     }
 
-    public partial class ExpressionVisibility : ExpressionLiteral<string>
+    public class ExpressionVisibility : ExpressionLiteral<string>
     {
         public static ExpressionVisibility VISIBLE = new ExpressionVisibility("visible");
         public static ExpressionVisibility NONE = new ExpressionVisibility("none");

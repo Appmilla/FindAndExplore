@@ -46,6 +46,7 @@ namespace FindAndExplore.Extensions
                     PostalCode = value.Location.PostalCode,
                     Country = value.Location.Country*/
                 },
+                Source = "Find And Explore MongoDB"
             };
 
             place.Categories.Add(new CategoryViewModel

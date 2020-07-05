@@ -209,7 +209,7 @@ namespace FindAndExplore.Droid.Mapping
 
             if (layer.IconImage != null)
             {
-                properties.Add(PropertyFactory.IconImage(layer.IconImage.ToNative()));
+                //properties.Add(PropertyFactory.IconImage(layer.IconImage.ToNative()));
                 
                 //this is a workaround
                 var image = layer.IconImage as ExpressionLiteral<string>;

@@ -55,6 +55,7 @@ namespace FindAndExplore.Extensions
                     PostalCode = value.Location.PostalCode,
                     Country = value.Location.Country
                 },
+                Source = "Foursquare"
             };
 
             foreach (var mappedCategory in value.Categories.Select(category => new CategoryViewModel

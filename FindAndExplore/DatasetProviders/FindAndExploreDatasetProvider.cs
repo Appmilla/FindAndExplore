@@ -4,6 +4,7 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using DynamicData;
+using FindAndExplore.DynamicData;
 using FindAndExplore.Extensions;
 using FindAndExplore.Infrastructure;
 using FindAndExplore.Mapping;
@@ -29,7 +30,7 @@ namespace FindAndExplore.DatasetProviders
         ReactiveCommand<Position, ICollection<PointOfInterest>> Load { get; }
         ReactiveCommand<Position, ICollection<PointOfInterest>> Refresh { get; }
         ReactiveCommand<Unit, Unit> CancelInFlightQueries { get; }
-        SourceCache<PlaceViewModel, String> ViewModelCache { get; set; }
+        SourceCache<PlaceViewModel, String> ViewModelCache { get; }
         FeatureCollection Features { get; }
     }
 
@@ -46,7 +47,7 @@ namespace FindAndExplore.DatasetProviders
 
         private GeoJsonSource _pointOfInterestSource;
        
-        static readonly Func<PlaceViewModel, string> PointOfInterestKeySelector = pointOfInterest => pointOfInterest.Id;
+        private static readonly Func<PlaceViewModel, string> PlacesKeySelector = place => place.Id;
         
         [Reactive]
         public FeatureCollection Features { get; set; }
@@ -62,6 +63,8 @@ namespace FindAndExplore.DatasetProviders
             _schedulerProvider = schedulerProvider;
             _errorReporter = errorReporter;
            
+            ViewModelCache = new SourceCache<PlaceViewModel, string>(PlacesKeySelector);
+            
             Load = ReactiveCommand.CreateFromObservable<Position, ICollection<PointOfInterest>>(
                 OnLoad,
                 this.WhenAnyValue(x => x.IsBusy).Select(x => !x),
@@ -129,6 +132,7 @@ namespace FindAndExplore.DatasetProviders
                     //using Edit locks the Cache so the operations within it are threadsafe
                     ViewModelCache.Edit(innerCache =>
                     {
+                        ViewModelCache.Clear();
                         ViewModelCache.AddOrUpdate(places);
                     });
                 });
@@ -191,6 +195,7 @@ namespace FindAndExplore.DatasetProviders
                 //using Edit locks the Cache so the operations within it are threadsafe
                 ViewModelCache.Edit(innerCache =>
                 {
+                    ViewModelCache.Clear();
                     ViewModelCache.AddOrUpdate(places);
                 });
             });
