@@ -54,6 +54,7 @@ namespace FindAndExplore.ViewModels
         readonly IErrorReporter _errorReporter;
         readonly IFoursquareDatasetProvider _foursquareDatasetProvider;
         readonly IFindAndExploreDatasetProvider _findAndExploreDatasetProvider;
+        readonly IFacebookDatasetProvider _facebookDatasetProvider;
         readonly IPlacesCache _placesCache;
         
         readonly Subject<Position> _sourceMapCenter = new Subject<Position>();
@@ -78,6 +79,9 @@ namespace FindAndExplore.ViewModels
         [ObservableAsProperty]
         public FeatureCollection VenueFeatures { get; }
 
+        [ObservableAsProperty]
+        public FeatureCollection PlaceFeatures { get; }
+
         public ReactiveCommand<Position, Unit> MapCenterLocationChanged { get; }
         
         public ReactiveCommand<Unit, Unit> CancelInFlightQueries { get; }
@@ -88,6 +92,7 @@ namespace FindAndExplore.ViewModels
             IErrorReporter errorReporter,
             IFoursquareDatasetProvider foursquareDatasetProvider,
             IFindAndExploreDatasetProvider findAndExploreDatasetProvider,
+            IFacebookDatasetProvider facebookDatasetProvider,
             IPlacesCache placesCache)
         {
             _mapControl = mapControl;
@@ -95,9 +100,10 @@ namespace FindAndExplore.ViewModels
             _errorReporter = errorReporter;
             _foursquareDatasetProvider = foursquareDatasetProvider;
             _findAndExploreDatasetProvider = findAndExploreDatasetProvider;
+            _facebookDatasetProvider = facebookDatasetProvider;
             _placesCache = placesCache;
             
-            this.WhenAnyValue(x => x._foursquareDatasetProvider.IsBusy, y => y._findAndExploreDatasetProvider.IsBusy, (x, y) => x || y)
+            this.WhenAnyValue(x => x._foursquareDatasetProvider.IsBusy, y => y._findAndExploreDatasetProvider.IsBusy, z => z._facebookDatasetProvider.IsBusy, (x, y, z) => x || y || z)
                 .ObserveOn(schedulerProvider.MainThread)
                 .ToPropertyEx(this, x => x.IsBusy, scheduler: _schedulerProvider.MainThread);            
             
@@ -108,7 +114,11 @@ namespace FindAndExplore.ViewModels
             this.WhenAnyValue(x => x._findAndExploreDatasetProvider.Features)
                 .ObserveOn(schedulerProvider.MainThread)
                 .ToPropertyEx(this, x => x.PointOfInterestFeatures, scheduler: _schedulerProvider.MainThread);
-            
+
+            this.WhenAnyValue(x => x._facebookDatasetProvider.Features)
+                .ObserveOn(schedulerProvider.MainThread)
+                .ToPropertyEx(this, x => x.PlaceFeatures, scheduler: _schedulerProvider.MainThread);
+
             MapCenterLocationChanged = ReactiveCommand.CreateFromTask<Position, Unit>
                 ( _ => OnMapCenterLocationChanged(),
                 outputScheduler: schedulerProvider.ThreadPool);
@@ -116,6 +126,7 @@ namespace FindAndExplore.ViewModels
             
             _sourceMapCenter.InvokeCommand(_foursquareDatasetProvider.Refresh);
             _sourceMapCenter.InvokeCommand(_findAndExploreDatasetProvider.Refresh);
+            _sourceMapCenter.InvokeCommand(_facebookDatasetProvider.Refresh);
 
             CancelInFlightQueries = ReactiveCommand.Create(
                 () => { },
@@ -124,7 +135,9 @@ namespace FindAndExplore.ViewModels
                     b => b._findAndExploreDatasetProvider.Refresh.IsExecuting,
                     c => c._foursquareDatasetProvider.Load.IsExecuting,
                     d => d._foursquareDatasetProvider.Refresh.IsExecuting,
-                    (a, b, c, d) => a || b || c || d));
+                    e => e._facebookDatasetProvider.Load.IsExecuting,
+                    f => f._facebookDatasetProvider.Refresh.IsExecuting,
+                    (a, b, c, d, e, f) => a || b || c || d || e || f));
 
             this.WhenAnyValue(x => x._mapControl.Center)
                 .Throttle(TimeSpan.FromSeconds(0.2), schedulerProvider.ThreadPool)
@@ -210,6 +223,7 @@ namespace FindAndExplore.ViewModels
             //TODO see if we can call this with the InvokeCommand syntax
             _foursquareDatasetProvider.Load.Execute(_mapControl.LastKnownUserPosition).Subscribe();
             _findAndExploreDatasetProvider.Load.Execute(_mapControl.LastKnownUserPosition).Subscribe();
+            _facebookDatasetProvider.Load.Execute(_mapControl.LastKnownUserPosition).Subscribe();
         }
 
         private async Task<Unit> OnMapStyleLoaded(MapStyle mapStyle)

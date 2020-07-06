@@ -106,6 +106,7 @@ namespace FindAndExplore.Bootstrap
 
             builder.RegisterType<FindAndExploreApiClient>().AsSelf().SingleInstance();
             builder.RegisterType<FoursquareApiClient>().AsSelf().SingleInstance();
+            builder.RegisterType<FacebookApiClient>().AsSelf().SingleInstance();
             builder.RegisterType<ConnectivityMonitor>().As<IConnectivityMonitor>().SingleInstance();
             
             //TODO try AsImplementedInterfaces later
@@ -138,9 +139,24 @@ namespace FindAndExplore.Bootstrap
                     schedulerProvider);
 
             }).As<IFoursquareQuery>().SingleInstance();
-            
+
+            builder.Register(c =>
+            {
+                var blobCache = c.ResolveKeyed<IBlobCache>(AkavacheConstants.LocalMachine);
+                var findAndExploreHttpClientFactory = c.Resolve<IFindAndExploreHttpClientFactory>();
+                var facebookApiClient = c.Resolve<FacebookApiClient>();
+                var schedulerProvider = c.Resolve<ISchedulerProvider>();
+
+                return new FacebookQuery(blobCache,
+                    findAndExploreHttpClientFactory,
+                    facebookApiClient,
+                    schedulerProvider);
+
+            }).As<IFacebookQuery>().SingleInstance();
+
             builder.RegisterType<FoursquareDatasetProvider>().As<IFoursquareDatasetProvider>().SingleInstance();
             builder.RegisterType<FindAndExploreDatasetProvider>().As<IFindAndExploreDatasetProvider>().SingleInstance();
+            builder.RegisterType<FacebookDatasetProvider>().As<IFacebookDatasetProvider>().SingleInstance();
 
             builder.RegisterType<PlacesCache>().As<IPlacesCache>().SingleInstance();           
             builder.RegisterType<ApplicationLifecycleObserver>().As<IApplicationLifecycleObserver>().SingleInstance();
