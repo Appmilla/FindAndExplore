@@ -118,6 +118,10 @@
     <ImageAsset Include="Assets.xcassets\local_bar.imageset\Contents.json" />
     <ImageAsset Include="Assets.xcassets\local_bar.imageset\local_bar.png" />
     <ImageAsset Include="Assets.xcassets\local_bar.imageset\local_bar-1.png" />
+    <ImageAsset Include="Assets.xcassets\blue_marker.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\blue_marker.imageset\map-marker-2-32.png" />
+    <ImageAsset Include="Assets.xcassets\blue_marker.imageset\map-marker-2-48.png" />
+    <ImageAsset Include="Assets.xcassets\blue_marker.imageset\map-marker-2-64.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets.xcassets\map_icon.imageset\" />
@@ -130,6 +134,8 @@
     <Folder Include="Presentation\" />
     <Folder Include="Resources\Fonts\" />
     <Folder Include="Assets.xcassets\local_bar.imageset\" />
+    <Folder Include="Assets.xcassets\black_marker.imageset\" />
+    <Folder Include="Assets.xcassets\blue_marker.imageset\" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />

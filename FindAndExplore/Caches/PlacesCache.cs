@@ -15,7 +15,8 @@ namespace FindAndExplore.Caches
         readonly IErrorReporter _errorReporter;
         readonly IFoursquareDatasetProvider _foursquareDatasetProvider;
         readonly IFindAndExploreDatasetProvider _findAndExploreDatasetProvider;
-        
+        readonly IFacebookDatasetProvider _facebookDatasetProvider;
+
         public SourceCache<PlaceViewModel, String> ViewModelCache { get; }
         
         public void Clear()
@@ -32,19 +33,21 @@ namespace FindAndExplore.Caches
             ISchedulerProvider schedulerProvider,
             IErrorReporter errorReporter,
             IFoursquareDatasetProvider foursquareDatasetProvider,
-            IFindAndExploreDatasetProvider findAndExploreDatasetProvider)
+            IFindAndExploreDatasetProvider findAndExploreDatasetProvider,
+            IFacebookDatasetProvider facebookDatasetProvider)
         {
             _schedulerProvider = schedulerProvider;
             _errorReporter = errorReporter;
             _foursquareDatasetProvider = foursquareDatasetProvider;
             _findAndExploreDatasetProvider = findAndExploreDatasetProvider;
+            _facebookDatasetProvider = facebookDatasetProvider;
 
             ViewModelCache = new SourceCache<PlaceViewModel, string>(PlacesKeySelector);
             
             // connect the various DatasetProvider ViewModelCaches to this combined cache
             _ = _findAndExploreDatasetProvider.ViewModelCache.Connect().PopulateInto(ViewModelCache);
             _ = _foursquareDatasetProvider.ViewModelCache.Connect().PopulateInto(ViewModelCache);
-            
+            _ = _facebookDatasetProvider.ViewModelCache.Connect().PopulateInto(ViewModelCache);
         }
     }
 }
