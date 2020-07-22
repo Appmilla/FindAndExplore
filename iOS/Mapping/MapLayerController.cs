@@ -12,6 +12,13 @@ using Mapbox;
 
 using Newtonsoft.Json;
 using UIKit;
+using GeoJSON.Net.Feature;
+using GeoJSON.Net.Geometry;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using CoreLocation;
+using System.Timers;
+using System.Threading.Tasks;
 
 namespace FindAndExplore.iOS.Mapping
 {
@@ -200,7 +207,69 @@ namespace FindAndExplore.iOS.Mapping
         {
             MapStyle.SetImage(UIImage.FromBundle(resourceId), imageId);
         }
-        
+
+        MGLShapeSource _polylineSource;
+        MGLLineStyleLayer _polylineLayer;
+        List<CLLocationCoordinate2D> _coordinateList;
+
+        public void AddDirections(ICollection<Position> positions)
+        {
+            var guid = Guid.NewGuid();
+
+            if (_polylineSource != null)
+            {
+                MapStyle.RemoveSource(_polylineSource);
+                _polylineSource = null;
+            }
+            if (_polylineLayer != null)
+            {
+                MapStyle.RemoveLayer(_polylineLayer);
+                _polylineLayer = null;
+            }
+
+            _coordinateList = new List<CLLocationCoordinate2D>();
+            foreach (var position in positions)
+            {
+                _coordinateList.Add(new CLLocationCoordinate2D(position.Latitude, position.Longitude));
+            }
+
+            var source = new MGLShapeSource(identifier: guid.ToString(), shape: null, options: null);
+            _polylineSource = source;
+            MapStyle.AddSource(source);
+
+            // Add a layer to style our polyline.
+            var layer = new MGLLineStyleLayer(identifier: guid.ToString(), source: source);
+            layer.LineJoin = NSExpression.FromConstant(new NSString("round"));
+            layer.LineCap = NSExpression.FromConstant(new NSString("round"));
+            layer.LineColor = NSExpression.FromConstant(UIColor.Red);
+
+            // The line width should gradually increase based on the zoom level.
+            layer.LineWidth = NSExpression.FromConstant(new NSNumber(5));
+            _polylineLayer = layer;
+
+            MapStyle.AddLayer(layer);
+
+            AnimatePolyline();
+        }
+
+        async Task AnimatePolyline()
+        {
+            var coordinateList = new List<CLLocationCoordinate2D>();
+
+            foreach (var coordinate in _coordinateList)
+            {
+                coordinateList.Add(new CLLocationCoordinate2D(coordinate.Latitude, coordinate.Longitude));
+
+                var coordinateArray = coordinateList.ToArray();
+
+                var polyline = MGLPolylineFeature.PolylineWithCoordinates(ref coordinateArray[0], new nuint((uint)coordinateArray.Count()));
+
+                // Updating the MGLShapeSource’s shape will have the map redraw our polyline with the current coordinates.
+                _polylineSource.Shape = polyline;
+
+                await Task.Delay(100);
+            }
+        }
 
         /*
         public void UpdateLight(Light light)

@@ -20,6 +20,7 @@ using FindAndExplore.Mapping;
 using FindAndExplore.Presentation;
 using FindAndExplore.Queries;
 using FindAndExplore.Reactive;
+using FindAndExplore.Services;
 using FindAndExploreApi.Client;
 using FoursquareApi.Client;
 using Geohash;
@@ -50,10 +51,12 @@ namespace FindAndExplore.ViewModels
         //public string AnimationJson => "LocationOrangeCircle.json";
         
         readonly IMapControl _mapControl;
+        readonly IMapLayerController _mapLayerController;
         readonly ISchedulerProvider _schedulerProvider;
         readonly IErrorReporter _errorReporter;
         readonly IFoursquareDatasetProvider _foursquareDatasetProvider;
         readonly IFindAndExploreDatasetProvider _findAndExploreDatasetProvider;
+        readonly IDirectionsService _directionsService;
         readonly IFacebookDatasetProvider _facebookDatasetProvider;
         readonly IPlacesCache _placesCache;
         
@@ -88,19 +91,23 @@ namespace FindAndExplore.ViewModels
         
         public MapViewModel(
             IMapControl mapControl,
+            IMapLayerController mapLayerController,
             ISchedulerProvider schedulerProvider,
             IErrorReporter errorReporter,
             IFoursquareDatasetProvider foursquareDatasetProvider,
             IFindAndExploreDatasetProvider findAndExploreDatasetProvider,
             IFacebookDatasetProvider facebookDatasetProvider,
+            IDirectionsService directionsService,
             IPlacesCache placesCache)
         {
             _mapControl = mapControl;
+            _mapLayerController = mapLayerController;
             _schedulerProvider = schedulerProvider;
             _errorReporter = errorReporter;
             _foursquareDatasetProvider = foursquareDatasetProvider;
             _findAndExploreDatasetProvider = findAndExploreDatasetProvider;
             _facebookDatasetProvider = facebookDatasetProvider;
+            _directionsService = directionsService;
             _placesCache = placesCache;
             
             this.WhenAnyValue(x => x._foursquareDatasetProvider.IsBusy, y => y._findAndExploreDatasetProvider.IsBusy, z => z._facebookDatasetProvider.IsBusy, (x, y, z) => x || y || z)
@@ -246,6 +253,10 @@ namespace FindAndExplore.ViewModels
 
         private async  Task<Unit> OnMapTapped(Position tapPosition)
         {
+            var positions = await _directionsService.GetDirectionsAsync(Http.DirectionsType.Driving, _mapControl.LastKnownUserPosition, tapPosition);
+
+            _mapLayerController.AddDirections(positions);
+
             return Unit.Default;
         }
     }

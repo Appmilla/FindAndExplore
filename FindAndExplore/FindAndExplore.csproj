@@ -19,6 +19,7 @@
     <Folder Include="Extensions\" />
     <Folder Include="Queries\" />
     <Folder Include="Presentation\" />
+    <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ReactiveUI" Version="11.4.1" />
@@ -33,5 +34,6 @@
     <PackageReference Include="FoursquareApi.Client" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="3.1.5" />
     <PackageReference Include="FacebookApi.Client" Version="1.0.0" />
+    <PackageReference Include="MapboxApi.Client" Version="1.0.1" />
   </ItemGroup>
 </Project>

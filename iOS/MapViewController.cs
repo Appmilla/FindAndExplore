@@ -135,7 +135,7 @@ namespace FindAndExplore.iOS
             ((MapLayerController) _mapLayerController).MapStyle = _style;
             
             _mapView.ShowsUserLocation = true;
-            
+
             //this.WhenAnyValue(x => x.ViewModel.PointOfInterestFeatures).Subscribe(OnPointsOfInterestChanged);
             //this.WhenAnyValue(x => x.ViewModel.VenueFeatures).Subscribe(OnVenuesChanged);
         }
@@ -274,7 +274,6 @@ namespace FindAndExplore.iOS
                     var position = new Position(touchedCoordinate.Latitude, touchedCoordinate.Longitude);
 
                     _mapControl.DidTapOnMap?.Execute(position);
-                    
                 }
             });
         }

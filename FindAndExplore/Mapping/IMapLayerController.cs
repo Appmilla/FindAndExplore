@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using FindAndExplore.Mapping.Layers;
 using GeoJSON.Net;
+using GeoJSON.Net.Geometry;
 
 namespace FindAndExplore.Mapping
 {
@@ -19,6 +21,7 @@ namespace FindAndExplore.Mapping
         StyleLayer[] GetLayers();
         
         void AddImage(string imageId, string resourceId);
-    }
 
+        void AddDirections(ICollection<Position> points);
+    }
 }

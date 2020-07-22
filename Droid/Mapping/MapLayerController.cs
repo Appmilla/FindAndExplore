@@ -15,6 +15,7 @@ using FindAndExplore.Mapping.Layers;
 using Light = FindAndExplore.Mapping.Light;
 
 using NxSource = FindAndExplore.Mapping.Sources.Source;
+using System.Collections.Generic;
 
 namespace FindAndExplore.Droid.Mapping
 {
@@ -157,7 +158,12 @@ namespace FindAndExplore.Droid.Mapping
             var bitmap = BitmapFactory.DecodeResource(Application.Context.Resources, resId);
             MapStyle.AddImage(imageId, bitmap);
         }
-        
+
+        public void AddDirections(ICollection<GeoJSON.Net.Geometry.Position> positions)
+        {
+
+        }
+
         /*
         public void UpdateLight(Light light)
         {

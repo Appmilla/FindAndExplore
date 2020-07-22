@@ -23,6 +23,7 @@ using FindAndExplore.Mapping;
 using FindAndExplore.Queries;
 using FindAndExplore.Reactive;
 using FindAndExplore.ViewModels;
+using FindAndExplore.Services;
 
 namespace FindAndExplore.Bootstrap
 {
@@ -104,9 +105,12 @@ namespace FindAndExplore.Bootstrap
                 return apiService;
             }).As<IApiService>().SingleInstance();
 
+            builder.RegisterType<DirectionsService>().As<IDirectionsService>().SingleInstance();
+
             builder.RegisterType<FindAndExploreApiClient>().AsSelf().SingleInstance();
             builder.RegisterType<FoursquareApiClient>().AsSelf().SingleInstance();
             builder.RegisterType<FacebookApiClient>().AsSelf().SingleInstance();
+            builder.RegisterType<MapboxApiClient>().AsSelf().SingleInstance();
             builder.RegisterType<ConnectivityMonitor>().As<IConnectivityMonitor>().SingleInstance();
             
             //TODO try AsImplementedInterfaces later
