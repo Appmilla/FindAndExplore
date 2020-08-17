@@ -16,6 +16,15 @@ using Light = FindAndExplore.Mapping.Light;
 
 using NxSource = FindAndExplore.Mapping.Sources.Source;
 using System.Collections.Generic;
+using Java.Lang;
+
+using MapboxsdkLayers = Com.Mapbox.Mapboxsdk.Style.Layers;
+using System;
+using Android.Animation;
+using Com.Mapbox.Turf;
+using Android.Views.Animations;
+using static Android.Animation.ValueAnimator;
+using Java.Interop;
 
 namespace FindAndExplore.Droid.Mapping
 {
@@ -159,9 +168,75 @@ namespace FindAndExplore.Droid.Mapping
             MapStyle.AddImage(imageId, bitmap);
         }
 
+        GeoJsonSource _geoJsonSource;
+        MapboxsdkLayers.LineLayer _lineLayer;
+        List<Com.Mapbox.Geojson.Point> _points;
+        List<Com.Mapbox.Geojson.Point> _currentPoints;
+        int _routeIndex;
+        private Animator _currentAnimator;
+
         public void AddDirections(ICollection<GeoJSON.Net.Geometry.Position> positions)
         {
+            var guid = Guid.NewGuid();
 
+            if (_lineLayer != null)
+            {
+                MapStyle.RemoveLayer(_lineLayer);
+                _lineLayer = null;
+            }
+            if (_geoJsonSource != null)
+            {
+                MapStyle.RemoveSource(_geoJsonSource);
+                _geoJsonSource = null;
+            }
+
+            _points = new List<Com.Mapbox.Geojson.Point>();
+            _currentPoints = new List<Com.Mapbox.Geojson.Point>();
+            _routeIndex = 0;
+
+            foreach (var position in positions)
+            {
+                _points.Add(Com.Mapbox.Geojson.Point.FromLngLat(position.Longitude, position.Latitude));
+            }
+
+            _geoJsonSource = new GeoJsonSource("line-source",
+                FeatureCollection.FromFeatures(new Feature[] {Feature.FromGeometry(
+                LineString.FromLngLats(MultiPoint.FromLngLats(new List<Com.Mapbox.Geojson.Point>())))}));
+            MapStyle.AddSource(_geoJsonSource);
+
+            _lineLayer = new MapboxsdkLayers.LineLayer("linelayer", "line-source");
+            _lineLayer.SetProperties(
+                MapboxsdkLayers.PropertyFactory.LineCap(MapboxsdkLayers.Property.LineCapRound),
+                MapboxsdkLayers.PropertyFactory.LineJoin(MapboxsdkLayers.Property.LineJoinRound),
+                MapboxsdkLayers.PropertyFactory.LineWidth(new Float(5)),
+                MapboxsdkLayers.PropertyFactory.LineColor(Color.ParseColor("#e55e5e"))
+                );
+            MapStyle.AddLayer(_lineLayer);
+            Animate();
+        }
+
+        private void Animate()
+        {
+            if (_points.Count - 1 > _routeIndex)
+            {
+                Com.Mapbox.Geojson.Point indexPoint = _points[_routeIndex];
+                Com.Mapbox.Geojson.Point newPoint = Com.Mapbox.Geojson.Point.FromLngLat(indexPoint.Longitude(), indexPoint.Latitude());
+                _currentAnimator = CreateLatLngAnimator(indexPoint, newPoint);
+                _currentAnimator.Start();
+                _routeIndex++;
+            }
+        }
+
+        private Animator CreateLatLngAnimator(Com.Mapbox.Geojson.Point currentPosition, Com.Mapbox.Geojson.Point targetPosition)
+        {
+            ValueAnimator latLngAnimator = ValueAnimator.OfObject(new PointEvaluator(), currentPosition, targetPosition);
+            //TODO fix this, currenrtly returning 0
+            //latLngAnimator.SetDuration((long)TurfMeasurement.Distance(currentPosition, targetPosition, "meters"));
+            latLngAnimator.SetDuration(100);
+            latLngAnimator.SetInterpolator(new LinearInterpolator());
+            latLngAnimator.AddListener(new MyAnimatorListenerAdapter(Animate));
+            latLngAnimator.AddUpdateListener(new MyAnimatorUpdateListener(_geoJsonSource, _currentPoints));
+            return latLngAnimator;
         }
 
         /*
@@ -208,5 +283,53 @@ namespace FindAndExplore.Droid.Mapping
         }
         */
 
+    }
+
+    class MyAnimatorListenerAdapter : AnimatorListenerAdapter
+    {
+        Action _action;
+
+        public MyAnimatorListenerAdapter(Action action)
+        {
+            _action = action;
+        }
+
+        public override void OnAnimationEnd(Animator animation)
+        {
+            base.OnAnimationEnd(animation);
+            _action();
+        }
+    }
+
+    class MyAnimatorUpdateListener : Java.Lang.Object, IAnimatorUpdateListener
+    {
+        private List<Com.Mapbox.Geojson.Point> _markerLinePointList;
+        GeoJsonSource _geoJsonSource;
+
+        public MyAnimatorUpdateListener(GeoJsonSource geoJsonSource, List<Com.Mapbox.Geojson.Point> markerLinePointList)
+        {
+            _geoJsonSource = geoJsonSource;
+            _markerLinePointList = markerLinePointList;
+        }
+
+        public void OnAnimationUpdate(ValueAnimator animation)
+        {
+            Com.Mapbox.Geojson.Point point = (Com.Mapbox.Geojson.Point)animation.AnimatedValue;
+            _markerLinePointList.Add(point);
+            _geoJsonSource.SetGeoJson(Feature.FromGeometry(LineString.FromLngLats(_markerLinePointList)));
+        }
+    }
+
+    class PointEvaluator : Java.Lang.Object, ITypeEvaluator
+    {
+        public Java.Lang.Object Evaluate(float fraction, Java.Lang.Object startValue, Java.Lang.Object endValue)
+        {
+            Com.Mapbox.Geojson.Point start = (Com.Mapbox.Geojson.Point)startValue;
+            Com.Mapbox.Geojson.Point end = (Com.Mapbox.Geojson.Point)endValue;
+
+            return Com.Mapbox.Geojson.Point.FromLngLat(
+                start.Longitude() + ((end.Longitude() - start.Longitude()) * fraction),
+                start.Latitude() + ((end.Latitude() - start.Latitude()) * fraction));
+         }
     }
 }
