@@ -17,13 +17,6 @@ namespace FindAndExplore.Droid.Http
             {
                 // this is the same message text thrown by iOS so we can filter this out of app center errors
                 throw new HttpRequestException("The Internet connection appears to be offline.");
-
-                //Note please leave this as it is 
-                //var message = exception.Message;
-                //throw new HttpRequestException(message);
-
-                //referencing the exception as below doesn't work
-                //throw new HttpRequestException(exception.Message);
             }
         }
     }

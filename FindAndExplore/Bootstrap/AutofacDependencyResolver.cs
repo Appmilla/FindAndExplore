@@ -66,32 +66,6 @@ namespace FindAndExplore.Bootstrap
         {
             // this method is not used by RxUI
             throw new NotImplementedException();
-
-            /*
-            var builder = new ContainerBuilder();
-
-            IEnumerable<IComponentRegistration> components;
-        
-            if (!string.IsNullOrEmpty(contract))
-                components = _container.ComponentRegistry.RegistrationsFor(new KeyedService(contract, serviceType));
-            else
-                components = _container.ComponentRegistry.Registrations
-                .Where(cr => cr.Activator.LimitType != typeof(LifetimeScope))
-                .Where(cr => cr.Activator.LimitType != serviceType);
-        
-            foreach (var c in components)
-            {
-                builder.RegisterComponent(c);
-            }
-
-            foreach (var source in _container.ComponentRegistry.Sources)
-            {
-                builder.RegisterSource(source);
-            }
-
-            //builder.Update(_container);
-            _container = builder.Build();
-            */
         }
 
         public void UnregisterAll(Type serviceType, string contract = null)

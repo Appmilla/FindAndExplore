@@ -39,12 +39,7 @@ namespace FindAndExplore.Extensions
                 Name =  value.Name,
                 Location = new LocationViewModel
                 {
-                    Position = value.Location/*,
-                    Address = value.Location.Address,
-                    City = value.Location.City,
-                    State = value.Location.State,
-                    PostalCode = value.Location.PostalCode,
-                    Country = value.Location.Country*/
+                    Position = value.Location
                 },
                 Source = "Find And Explore MongoDB"
             };

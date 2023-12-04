@@ -31,24 +31,7 @@ using ReactiveUI.Fody.Helpers;
 namespace FindAndExplore.ViewModels
 {
     public class MapViewModel : BaseViewModel
-    {
-        //public const string AnimationKeySuccess = "Success";
-        //public const string AnimationKeySpinningCircle = "PulsingCircle";
-
-        //private const int SpinningCircleAnimationStartFrame = 0;
-        //private const int SpinningCircleAnimationEndFrame = 40;
-        //private const int SuccessAnimationStartFrame = 60;
-        //private const int SuccessAnimationEndFrame = 95;
-
-        //public IList<AnimationSection> AnimationSequence { get; } = new List<AnimationSection>
-        //{
-        //    new AnimationSection(AnimationKeySpinningCircle, SpinningCircleAnimationStartFrame,
-        //            SpinningCircleAnimationEndFrame),
-        //    new AnimationSection(AnimationKeySuccess, SuccessAnimationStartFrame, SuccessAnimationEndFrame)
-        //};
-
-        //public string AnimationJson => "LocationOrangeCircle.json";
-        
+    {        
         readonly IMapControl _mapControl;
         readonly ISchedulerProvider _schedulerProvider;
         readonly IErrorReporter _errorReporter;

@@ -2,11 +2,6 @@
 {
     public class AppConfiguration : IAppConfiguration    
     {
-        /*
-        public string FindAndExploreBaseUrl => ConfigCollection.GetConfigValue("FindAndExploreBaseUrl");
-        public string FindAndExploreSubscriptionKey => ConfigCollection.GetConfigValue("FindAndExploreSubscriptionKey");
-        */
-
         //public string FindAndExploreBaseUrl => "https://apim-find-and-explore.azure-api.net/FindAndExploreApi-dev/";
         //public string FindAndExploreBaseUrl => "https://apim-find-and-explore.azure-api.net/FindAndExploreApi-dev/v1/";
         public string FindAndExploreBaseUrl => "https://apim-find-and-explore.azure-api.net/";

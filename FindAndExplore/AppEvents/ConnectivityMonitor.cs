@@ -9,17 +9,15 @@ namespace FindAndExplore.AppEvents
     public class ConnectivityMonitor : ReactiveObject, IConnectivityMonitor
     {
         readonly IConnectivity _connectivity;
-        //readonly ISnackbar _snackbar;
+       
         readonly Subject<NetworkAccess> _connectivityNotifications;
 
         public IObservable<NetworkAccess> ConnectivityNotifications => _connectivityNotifications;
 
         public ConnectivityMonitor(
-            IConnectivity connectivity/*,
-            ISnackbar snackbar*/)
+            IConnectivity connectivity)
         {
             _connectivity = connectivity;
-            //_snackbar = snackbar;
 
             _connectivityNotifications = new Subject<NetworkAccess>();
         }
@@ -44,7 +42,6 @@ namespace FindAndExplore.AppEvents
 
         void ShowNoInternet()
         {
-            //_snackbar.ShowMessage("No Internet, please check your connection", 5);
         }
     }
 }

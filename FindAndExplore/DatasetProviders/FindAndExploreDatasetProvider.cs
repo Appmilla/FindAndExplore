@@ -149,17 +149,7 @@ namespace FindAndExplore.DatasetProviders
         }
 
         private void SetUpPOIMarkerLayer()
-        {
-            /*
-            _mapLayerController.AddLayer(new SymbolLayer(VENUE_MARKER_LAYER_ID, GEOJSON_VENUE_SOURCE_ID)
-            {
-                IconImage = BAR_MARKER_IMAGE_ID,
-                IconAllowOverlap = true,
-                IconIgnorePlacement = true,
-                IconOffset = (new float[] { 0f, -8f })
-            });
-            */
-            
+        {            
             _mapLayerController.AddLayer(new SymbolLayer(POI_MARKER_LAYER_ID, GEOJSON_POI_SOURCE_ID)
             {
                 IconImage = Expression.Literal(RED_MARKER_IMAGE_ID),

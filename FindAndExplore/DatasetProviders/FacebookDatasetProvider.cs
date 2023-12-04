@@ -146,16 +146,6 @@ namespace FindAndExplore.DatasetProviders
 
         private void SetUpVenuesMarkerLayer()
         {
-            /*
-            _mapLayerController.AddLayer(new SymbolLayer(VENUE_MARKER_LAYER_ID, GEOJSON_VENUE_SOURCE_ID)
-            {
-                IconImage = BAR_MARKER_IMAGE_ID,
-                IconAllowOverlap = true,
-                IconIgnorePlacement = true,
-                IconOffset = (new float[] { 0f, -8f })
-            });
-            */
-
             _mapLayerController.AddLayer(new SymbolLayer(FACEBOOK_MARKER_LAYER_ID, GEOJSON_FACEBOOK_SOURCE_ID)
             {
                 IconImage = Expression.Literal(BLUE_MARKER_IMAGE_ID),

@@ -32,8 +32,6 @@ namespace FindAndExplore.Droid.Bootstrap
             var csl = new AutofacServiceLocator(container);
             ServiceLocator.SetLocatorProvider(() => csl);
 
-            //App.Container = container;
-
             Bootstrapper.PostContainerBuild();
         }
     }
